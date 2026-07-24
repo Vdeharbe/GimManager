@@ -1,52 +1,40 @@
 function Dashboard() {
   return (
-    <main style={{ padding: "20px" }}>
-      <h1>Dashboard</h1>
+    <div className="container-fluid p-4">
+      <h2 className="mb-4">Dashboard</h2>
 
-      <div style={{ display: "flex", gap: "16px", margin: "20px 0" }}>
-        <div
-          style={{
-            flex: 1,
-            padding: "16px",
-            borderRadius: "12px",
-            background: "#f8f9fa",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div style={{ fontSize: "24px" }}>👥</div>
-          <h2>Socios</h2>
-          <p style={{ fontSize: "32px", margin: 0 }}>120</p>
+      <div className="row">
+        <div className="col-md-4">
+          <div className="card shadow">
+            <div className="card-body">
+              <h5>👥 Socios</h5>
+
+              <h2>120</h2>
+            </div>
+          </div>
         </div>
-        <div
-          style={{
-            flex: 1,
-            padding: "16px",
-            borderRadius: "12px",
-            background: "#f8f9fa",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div style={{ fontSize: "24px" }}>🏋️</div>
-          <h2>Profesores</h2>
-          <p style={{ fontSize: "32px", margin: 0 }}>8</p>
+
+        <div className="col-md-4">
+          <div className="card shadow">
+            <div className="card-body">
+              <h5>🏋️ Profesores</h5>
+
+              <h2>8</h2>
+            </div>
+          </div>
         </div>
-        <div
-          style={{
-            flex: 1,
-            padding: "16px",
-            borderRadius: "12px",
-            background: "#f8f9fa",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.08)",
-          }}
-        >
-          <div style={{ fontSize: "24px" }}>💳</div>
-          <h2>Pagos del mes</h2>
-          <p style={{ fontSize: "32px", margin: 0 }}>95</p>
+
+        <div className="col-md-4">
+          <div className="card shadow">
+            <div className="card-body">
+              <h5>💳 Pagos</h5>
+
+              <h2>95</h2>
+            </div>
+          </div>
         </div>
       </div>
-
-      <p>Bienvenida al sistema.</p>
-    </main>
+    </div>
   );
 }
 

@@ -1,19 +1,40 @@
 function Sidebar() {
   return (
-    <aside
-      style={{
-        width: "220px",
-        background: "#ECEFF1",
-        padding: "20px",
-        height: "100vh",
-      }}
+    <div
+      className="bg-light border-end p-3"
+      style={{ width: "230px", minHeight: "100vh" }}
     >
-      <p>🏠 Inicio</p>
-      <p>👥 Socios</p>
-      <p>🏋️ Profesores</p>
-      <p>💳 Pagos</p>
-      <p>📅 Clases</p>
-    </aside>
+      <h5>Menú</h5>
+
+      <ul className="nav flex-column">
+
+        <li className="nav-item">
+          <a className="nav-link" href="#">
+            🏠 Inicio
+          </a>
+        </li>
+
+        <li className="nav-item">
+          <a className="nav-link" href="#">
+            👥 Socios
+          </a>
+        </li>
+
+        <li className="nav-item">
+          <a className="nav-link" href="#">
+            🏋️ Profesores
+          </a>
+        </li>
+
+        <li className="nav-item">
+          <a className="nav-link" href="#">
+            💳 Pagos
+          </a>
+        </li>
+
+      </ul>
+
+    </div>
   );
 }
 
