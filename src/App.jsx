@@ -1,16 +1,15 @@
 import Navbar from "./components/layout/Navbar";
 import Sidebar from "./components/layout/Sidebar";
-import Dashboard from "./pages/Dashboard";
+import Socios from "./pages/Socios";
 
 function App() {
   return (
     <>
       <Navbar />
 
-      <div style={{ display: "flex" }}>
+      <div className="d-flex">
         <Sidebar />
-
-        <Dashboard />
+        <Socios />
       </div>
     </>
   );
