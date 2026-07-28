@@ -1,11 +1,13 @@
 import { useEffect, useState } from "react";
 import sociosIniciales from "../data/socios";
+import FormularioSocio from "../components/FormularioSocio";
 
 function Socios() {
-  const datosGuardados = localStorage.getItem("socios");
-  const [socios, setSocios] = useState(
-    datosGuardados ? JSON.parse(datosGuardados) : sociosIniciales,
-  );
+  const [socios, setSocios] = useState(() => {
+    const guardados = localStorage.getItem("socios");
+
+    return guardados ? JSON.parse(guardados) : sociosIniciales;
+  });
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("");
   const [formData, setFormData] = useState({
@@ -24,10 +26,10 @@ function Socios() {
     setSocioEditandoId(null);
   };
 
-  const guardarSocio = () => {
-    const nombre = formData.nombre.trim();
-    const email = formData.email.trim();
-    const plan = formData.plan || "Premium";
+  const guardarSocio = (socioData) => {
+    const nombre = (socioData?.nombre ?? formData.nombre).trim();
+    const email = (socioData?.email ?? formData.email).trim();
+    const plan = (socioData?.plan ?? formData.plan) || "Premium";
 
     if (!nombre || !email) return;
 
@@ -77,44 +79,7 @@ function Socios() {
 
   return (
     <div className="container mt-4">
-      <div className="card mb-4">
-        <div className="card-body">
-          <h4>{socioEditandoId !== null ? "Editar Socio" : "Nuevo Socio"}</h4>
-
-          <input
-            className="form-control mb-2"
-            placeholder="Nombre"
-            value={formData.nombre}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, nombre: e.target.value }))
-            }
-          />
-
-          <input
-            className="form-control mb-2"
-            placeholder="Email"
-            value={formData.email}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, email: e.target.value }))
-            }
-          />
-
-          <select
-            className="form-select mb-2"
-            value={formData.plan}
-            onChange={(e) =>
-              setFormData((prev) => ({ ...prev, plan: e.target.value }))
-            }
-          >
-            <option value="Premium">Premium</option>
-            <option value="Básico">Básico</option>
-          </select>
-
-          <button className="btn btn-primary" onClick={guardarSocio}>
-            {socioEditandoId !== null ? "Guardar cambios" : "Agregar"}
-          </button>
-        </div>
-      </div>
+      <FormularioSocio agregarSocio={guardarSocio} />
 
       <div>
         <h2>👥 Gestión de Socios</h2>
