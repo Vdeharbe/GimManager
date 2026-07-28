@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import sociosIniciales from "../data/socios";
 
 function Socios() {
@@ -8,23 +8,63 @@ function Socios() {
   );
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("");
+  const [formData, setFormData] = useState({
+    nombre: "",
+    email: "",
+    plan: "Premium",
+  });
+  const [socioEditandoId, setSocioEditandoId] = useState(null);
 
-  const agregarSocio = () => {
-    const nombre = document.getElementById("nombre")?.value.trim();
-    const email = document.getElementById("email")?.value.trim();
-    const plan = document.getElementById("plan")?.value || "Premium";
+  useEffect(() => {
+    localStorage.setItem("socios", JSON.stringify(socios));
+  }, [socios]);
+
+  const resetForm = () => {
+    setFormData({ nombre: "", email: "", plan: "Premium" });
+    setSocioEditandoId(null);
+  };
+
+  const guardarSocio = () => {
+    const nombre = formData.nombre.trim();
+    const email = formData.email.trim();
+    const plan = formData.plan || "Premium";
 
     if (!nombre || !email) return;
 
-    const nuevoSocio = {
-      id: Date.now(),
-      nombre,
-      email,
-      plan,
-      estado: "Activo",
-    };
+    if (socioEditandoId !== null) {
+      setSocios((prevSocios) =>
+        prevSocios.map((socio) =>
+          socio.id === socioEditandoId
+            ? { ...socio, nombre, email, plan }
+            : socio,
+        ),
+      );
+    } else {
+      const nuevoSocio = {
+        id: Date.now(),
+        nombre,
+        email,
+        plan,
+        estado: "Activo",
+      };
 
-    setSocios((prevSocios) => [nuevoSocio, ...prevSocios]);
+      setSocios((prevSocios) => [nuevoSocio, ...prevSocios]);
+    }
+
+    resetForm();
+  };
+
+  const editarSocio = (id) => {
+    const socio = socios.find((item) => item.id === id);
+
+    if (!socio) return;
+
+    setFormData({
+      nombre: socio.nombre,
+      email: socio.email,
+      plan: socio.plan,
+    });
+    setSocioEditandoId(id);
   };
 
   const buscarSocio = (e) => {
@@ -32,32 +72,46 @@ function Socios() {
   };
 
   const eliminarSocio = (id) => {
-    const nuevaLista = socios.filter((socio) => socio.id !== id);
-
-    setSocios(nuevaLista);
+    setSocios((prevSocios) => prevSocios.filter((socio) => socio.id !== id));
   };
 
   return (
     <div className="container mt-4">
       <div className="card mb-4">
         <div className="card-body">
-          <h4>Nuevo Socio</h4>
+          <h4>{socioEditandoId !== null ? "Editar Socio" : "Nuevo Socio"}</h4>
 
           <input
             className="form-control mb-2"
             placeholder="Nombre"
-            id="nombre"
+            value={formData.nombre}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, nombre: e.target.value }))
+            }
           />
 
-          <input className="form-control mb-2" placeholder="Email" id="email" />
+          <input
+            className="form-control mb-2"
+            placeholder="Email"
+            value={formData.email}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, email: e.target.value }))
+            }
+          />
 
-          <select className="form-select mb-2" id="plan">
-            <option>Premium</option>
-            <option>Básico</option>
+          <select
+            className="form-select mb-2"
+            value={formData.plan}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, plan: e.target.value }))
+            }
+          >
+            <option value="Premium">Premium</option>
+            <option value="Básico">Básico</option>
           </select>
 
-          <button className="btn btn-primary" onClick={agregarSocio}>
-            Agregar
+          <button className="btn btn-primary" onClick={guardarSocio}>
+            {socioEditandoId !== null ? "Guardar cambios" : "Agregar"}
           </button>
         </div>
       </div>
@@ -121,6 +175,13 @@ function Socios() {
                     </span>
                   </td>
                   <td>
+                    <button
+                      className="btn btn-warning btn-sm me-2"
+                      onClick={() => editarSocio(socio.id)}
+                    >
+                      Editar
+                    </button>
+
                     <button
                       className="btn btn-danger btn-sm"
                       onClick={() => eliminarSocio(socio.id)}
