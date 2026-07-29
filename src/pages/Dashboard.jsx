@@ -1,37 +1,21 @@
+import StatCard from "../components/ui/StatCard";
+
 function Dashboard() {
   return (
-    <div className="container-fluid p-4">
-      <h2 className="mb-4">Dashboard</h2>
+    <div className="container mt-4">
+      <h2>Dashboard</h2>
 
       <div className="row">
         <div className="col-md-4">
-          <div className="card shadow">
-            <div className="card-body">
-              <h5>👥 Socios</h5>
-
-              <h2>120</h2>
-            </div>
-          </div>
+          <StatCard titulo="Socios" valor="120" color="primary" />
         </div>
 
         <div className="col-md-4">
-          <div className="card shadow">
-            <div className="card-body">
-              <h5>🏋️ Profesores</h5>
-
-              <h2>8</h2>
-            </div>
-          </div>
+          <StatCard titulo="Profesores" valor="8" color="success" />
         </div>
 
         <div className="col-md-4">
-          <div className="card shadow">
-            <div className="card-body">
-              <h5>💳 Pagos</h5>
-
-              <h2>95</h2>
-            </div>
-          </div>
+          <StatCard titulo="Pagos" valor="95" color="warning" />
         </div>
       </div>
     </div>
