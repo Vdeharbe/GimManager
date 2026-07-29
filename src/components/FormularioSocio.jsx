@@ -1,13 +1,30 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-function FormularioSocio({ agregarSocio }) {
+function FormularioSocio({ agregarSocio, socioAEditar }) {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [plan, setPlan] = useState("Premium");
 
+  useEffect(() => {
+    if (socioAEditar) {
+      setNombre(socioAEditar.nombre || "");
+      setEmail(socioAEditar.email || "");
+      setPlan(socioAEditar.plan || "Premium");
+    } else {
+      setNombre("");
+      setEmail("");
+      setPlan("Premium");
+    }
+  }, [socioAEditar]);
+
   const guardar = () => {
     if (!nombre.trim() || !email.trim()) {
       alert("Complete todos los campos");
+      return;
+    }
+
+    if (!email.includes("@")) {
+      alert("Ingrese un correo electrónico válido.");
       return;
     }
 
@@ -25,7 +42,7 @@ function FormularioSocio({ agregarSocio }) {
   return (
     <div className="card mb-4">
       <div className="card-body">
-        <h4>Nuevo Socio</h4>
+        <h4>{socioAEditar ? "Editar Socio" : "Nuevo Socio"}</h4>
 
         <input
           className="form-control mb-2"
@@ -51,7 +68,7 @@ function FormularioSocio({ agregarSocio }) {
         </select>
 
         <button className="btn btn-primary" onClick={guardar}>
-          Agregar Socio
+          {socioAEditar ? "Guardar cambios" : "Agregar Socio"}
         </button>
       </div>
     </div>
