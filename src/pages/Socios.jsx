@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import sociosIniciales from "../data/socios";
 import FormularioSocio from "../components/FormularioSocio";
 
 function Socios() {
+  const navigate = useNavigate();
   const [socios, setSocios] = useState(() => {
     const guardados = localStorage.getItem("socios");
 
@@ -79,7 +81,16 @@ function Socios() {
 
   return (
     <div className="container mt-4">
-      <FormularioSocio agregarSocio={guardarSocio} />
+      <button className="btn btn-outline-secondary mb-3" onClick={() => navigate(-1)}>
+        ← Volver
+      </button>
+
+      <FormularioSocio
+        agregarSocio={guardarSocio}
+        socioAEditar={
+          socios.find((socio) => socio.id === socioEditandoId) || null
+        }
+      />
 
       <div>
         <h2>👥 Gestión de Socios</h2>
