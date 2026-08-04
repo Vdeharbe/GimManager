@@ -21,6 +21,7 @@ export function AuthProvider({ children }) {
       const datos = {
         nombre: "Administrador",
         email,
+        foto: "https://i.pravatar.cc/100?img=12",
       };
 
       setUsuario(datos);
