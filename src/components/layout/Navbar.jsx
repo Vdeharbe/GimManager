@@ -1,7 +1,5 @@
 import { useAuth } from "../../context/AuthContext";
 
-
-
 function Navbar() {
   const { usuario, logout } = useAuth();
 

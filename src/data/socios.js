@@ -1,25 +1,25 @@
-const socios = [
+﻿const sociosIniciales = [
   {
     id: 1,
-    nombre: "Juan Pérez",
-    email: "juan@email.com",
+    nombre: "María López",
+    email: "maria@example.com",
     plan: "Premium",
-    estado: "Activo"
+    estado: "Activo",
   },
   {
     id: 2,
-    nombre: "María Gómez",
-    email: "maria@email.com",
+    nombre: "Carlos Ruiz",
+    email: "carlos@example.com",
     plan: "Básico",
-    estado: "Activo"
+    estado: "Inactivo",
   },
   {
     id: 3,
-    nombre: "Carlos López",
-    email: "carlos@email.com",
+    nombre: "Ana Gómez",
+    email: "ana@example.com",
     plan: "Premium",
-    estado: "Inactivo"
-  }
+    estado: "Activo",
+  },
 ];
 
-export default socios;
+export default sociosIniciales;

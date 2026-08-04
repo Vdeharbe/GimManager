@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import sociosIniciales from "../data/socios";
 import FormularioSocio from "../components/FormularioSocio";
+import { obtenerSocios } from "../services/sociosService";
 
 function Socios() {
   const navigate = useNavigate();
@@ -12,6 +13,8 @@ function Socios() {
   });
   const [busqueda, setBusqueda] = useState("");
   const [filtro, setFiltro] = useState("");
+  const [cargando, setCargando] = useState(true);
+  const [error, setError] = useState(null);
   const [formData, setFormData] = useState({
     nombre: "",
     email: "",
@@ -22,6 +25,24 @@ function Socios() {
   useEffect(() => {
     localStorage.setItem("socios", JSON.stringify(socios));
   }, [socios]);
+
+  const cargarSocios = async () => {
+    setCargando(true);
+    setError(null);
+
+    try {
+      const datos = await obtenerSocios();
+      setSocios(datos);
+    } catch (err) {
+      setError("No se pudieron cargar los socios.");
+    } finally {
+      setCargando(false);
+    }
+  };
+
+  useEffect(() => {
+    cargarSocios();
+  }, []);
 
   const resetForm = () => {
     setFormData({ nombre: "", email: "", plan: "Premium" });
@@ -81,7 +102,10 @@ function Socios() {
 
   return (
     <div className="container mt-4">
-      <button className="btn btn-outline-secondary mb-3" onClick={() => navigate(-1)}>
+      <button
+        className="btn btn-outline-secondary mb-3"
+        onClick={() => navigate(-1)}
+      >
         ← Volver
       </button>
 
@@ -104,6 +128,7 @@ function Socios() {
 
         <select
           className="form-select mb-3"
+          value={filtro}
           onChange={(e) => setFiltro(e.target.value)}
         >
           <option value="">Todos</option>
@@ -111,64 +136,83 @@ function Socios() {
           <option value="Inactivo">Inactivo</option>
         </select>
 
-        <table className="table table-striped table-hover mt-3">
-          <thead className="table-dark">
-            <tr>
-              <th>ID</th>
-              <th>Nombre</th>
-              <th>Email</th>
-              <th>Plan</th>
-              <th>Estado</th>
-              <th>Acciones</th>
-            </tr>
-          </thead>
+        <button
+          className="btn btn-outline-primary mb-3"
+          onClick={cargarSocios}
+          disabled={cargando}
+        >
+          {cargando ? "⏳ Actualizando..." : "🔄 Actualizar"}
+        </button>
 
-          <tbody>
-            {socios
-              .filter((socio) => {
-                if (filtro === "") return true;
+        {error ? (
+          <div className="alert alert-danger mt-3">{error}</div>
+        ) : cargando ? (
+          <div className="d-flex align-items-center gap-2 mt-3">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Cargando...</span>
+            </div>
+            <span>Cargando socios...</span>
+          </div>
+        ) : (
+          <table className="table table-striped table-hover mt-3">
+            <thead className="table-dark">
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Plan</th>
+                <th>Estado</th>
+                <th>Acciones</th>
+              </tr>
+            </thead>
 
-                return socio.estado === filtro;
-              })
-              .filter((socio) =>
-                socio.nombre.toLowerCase().includes(busqueda.toLowerCase()),
-              )
-              .map((socio) => (
-                <tr key={socio.id}>
-                  <td>{socio.id}</td>
-                  <td>{socio.nombre}</td>
-                  <td>{socio.email}</td>
-                  <td>{socio.plan}</td>
-                  <td>
-                    <span
-                      className={
-                        socio.estado === "Activo"
-                          ? "badge bg-success"
-                          : "badge bg-danger"
-                      }
-                    >
-                      {socio.estado}
-                    </span>
-                  </td>
-                  <td>
-                    <button
-                      className="btn btn-warning btn-sm me-2"
-                      onClick={() => editarSocio(socio.id)}
-                    >
-                      Editar
-                    </button>
+            <tbody>
+              {socios
+                .filter((socio) => {
+                  if (filtro === "") return true;
 
-                    <button
-                      className="btn btn-danger btn-sm"
-                      onClick={() => eliminarSocio(socio.id)}
-                    >
-                      Eliminar
-                    </button>
-                  </td>
-                </tr>
-              ))}
-          </tbody>
-        </table>
+                  return socio.estado === filtro;
+                })
+                .filter((socio) =>
+                  socio.nombre.toLowerCase().includes(busqueda.toLowerCase()),
+                )
+                .map((socio) => (
+                  <tr key={socio.id}>
+                    <td>{socio.id}</td>
+                    <td>{socio.nombre}</td>
+                    <td>{socio.email}</td>
+                    <td>{socio.plan}</td>
+                    <td>
+                      <span
+                        className={
+                          socio.estado === "Activo"
+                            ? "badge bg-success"
+                            : "badge bg-danger"
+                        }
+                      >
+                        {socio.estado}
+                      </span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-warning btn-sm me-2"
+                        onClick={() => editarSocio(socio.id)}
+                      >
+                        Editar
+                      </button>
+
+                      <button
+                        className="btn btn-danger btn-sm"
+                        onClick={() => eliminarSocio(socio.id)}
+                      >
+                        Eliminar
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+            </tbody>
+          </table>
+        )}
       </div>
     </div>
   );

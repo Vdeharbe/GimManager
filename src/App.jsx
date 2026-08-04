@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
+import Navbar from "./components/layout/Navbar";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Socios from "./pages/Socios";
@@ -15,6 +16,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+        <Navbar />
         <Routes>
           <Route path="/" element={<Login />} />
 
