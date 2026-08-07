@@ -1,45 +1,27 @@
-//Importa Express
 const express = require("express");
-//crea la aplicacion
-const app = express();
+const cors = require("cors");
+const sociosRoutes = require("./routes/socios.routes");
 
-const PORT = 3000;
-//defino ruta
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// Middleware
+app.use(cors());
+app.use(express.json());
+
+// Rutas
+app.use("/api", sociosRoutes);
+
 app.get("/", (req, res) => {
   res.send("🚀 API Gym Manager funcionando");
 });
-// ruta socios
-app.get("/api/socios", (req, res) => {
-  const socios = [
-    {
-      id: 1,
-      nombre: "Juan Pérez",
-      plan: "Premium",
-    },
-    {
-      id: 2,
-      nombre: "María Gómez",
-      plan: "Básico",
-    },
-  ];
 
-  res.json(socios);
+// Manejo de errores 404
+app.use((req, res) => {
+  res.status(404).json({ error: "Ruta no encontrada" });
 });
-//ruta profesores
-app.get("/api/profesores", (req, res) => {
-  res.json([
-    { id: 1, nombre: "Carlos Díaz" },
-    { id: 2, nombre: "Laura Pérez" },
-  ]);
-});
-//ruta pagos
-app.get("/api/pagos", (req, res) => {
-  res.json([
-    { id: 1, monto: 25000 },
-    { id: 2, monto: 30000 },
-  ]);
-});
-//inicia el servidor
+
+// Inicia el servidor
 app.listen(PORT, () => {
   console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });
