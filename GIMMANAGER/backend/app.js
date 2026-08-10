@@ -9,8 +9,10 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+
 // Rutas
-app.use("/api", sociosRoutes);
+app.use("/api/socios", sociosRoutes);
+
 
 app.get("/", (req, res) => {
   res.send("🚀 API Gym Manager funcionando");
