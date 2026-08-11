@@ -17,7 +17,8 @@ function Socios() {
   const [error, setError] = useState("");
 
   const [socioAEditar, setSocioAEditar] = useState(null);
-
+  const [busqueda, setBusqueda] = useState("");
+  const [filtroEstado, setFiltroEstado] = useState("Todos");
   const cargarSocios = async () => {
     try {
       setCargando(true);
@@ -100,6 +101,18 @@ function Socios() {
       alert("No se pudo eliminar el socio.");
     }
   };
+  const sociosFiltrados = socios.filter((socio) => {
+    const texto = busqueda.toLowerCase();
+
+    const coincideBusqueda =
+      socio.nombre.toLowerCase().includes(texto) ||
+      socio.email.toLowerCase().includes(texto);
+
+    const coincideEstado =
+      filtroEstado === "Todos" || socio.estado === filtroEstado;
+
+    return coincideBusqueda && coincideEstado;
+  });
 
   if (cargando) {
     return (
@@ -135,7 +148,39 @@ function Socios() {
         agregarSocio={socioAEditar ? editarSocio : agregarSocio}
         socioAEditar={socioAEditar}
       />
+      <div className="card mb-4">
+        <div className="card-body">
+          <div className="row">
+            <div className="col-md-8">
+              <label className="form-label">🔍 Buscar socio</label>
 
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Buscar por nombre o email..."
+                value={busqueda}
+                onChange={(e) => setBusqueda(e.target.value)}
+              />
+            </div>
+
+            <div className="col-md-4">
+              <label className="form-label">📄 Estado</label>
+
+              <select
+                className="form-select"
+                value={filtroEstado}
+                onChange={(e) => setFiltroEstado(e.target.value)}
+              >
+                <option value="Todos">Todos</option>
+
+                <option value="Activo">Activos</option>
+
+                <option value="Inactivo">Inactivos</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
       <table className="table table-striped table-hover">
         <thead className="table-dark">
           <tr>
@@ -149,7 +194,7 @@ function Socios() {
         </thead>
 
         <tbody>
-          {socios.map((socio) => (
+          {sociosFiltrados.map((socio) => (
             <tr key={socio.id}>
               <td>{socio.id}</td>
 
