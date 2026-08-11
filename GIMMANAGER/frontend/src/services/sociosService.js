@@ -9,6 +9,7 @@ export const crearSocio = async (socio) => {
   return respuesta.data;
 };
 
+
 export const actualizarSocio = async (id, socio) => {
   const respuesta = await api.put(`/socios/${id}`, socio);
   return respuesta.data;

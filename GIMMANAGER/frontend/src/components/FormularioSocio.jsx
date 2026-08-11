@@ -17,7 +17,7 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
     }
   }, [socioAEditar]);
 
-  const guardar = () => {
+  const guardar = async () => {
     if (!nombre.trim() || !email.trim()) {
       alert("Complete todos los campos");
       return;
@@ -28,15 +28,30 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
       return;
     }
 
-    agregarSocio({
-      nombre,
-      email,
-      plan,
-    });
+   const socio = {
+  ...(socioAEditar && { id: socioAEditar.id }),
+  nombre: nombre.trim(),
+  email: email.trim(),
+  plan,
+  estado: socioAEditar?.estado || "Activo",
+};
 
-    setNombre("");
-    setEmail("");
-    setPlan("Premium");
+    try {
+      await agregarSocio(socio);
+
+      alert(
+        socioAEditar
+          ? "✅ Socio actualizado correctamente"
+          : "✅ Socio agregado correctamente",
+      );
+
+      setNombre("");
+      setEmail("");
+      setPlan("Premium");
+    } catch (error) {
+      console.error(error);
+      alert("❌ No se pudo guardar el socio");
+    }
   };
 
   return (
@@ -52,6 +67,7 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
         />
 
         <input
+          type="email"
           className="form-control mb-2"
           placeholder="Email"
           value={email}

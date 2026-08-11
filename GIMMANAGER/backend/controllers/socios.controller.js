@@ -2,124 +2,102 @@ const Socios = require("../models/socios.model");
 
 // Obtener todos
 const listarSocios = (req, res) => {
+  Socios.obtenerSocios((err, datos) => {
+    if (err) return res.status(500).json(err);
 
-    Socios.obtenerSocios((err, datos) => {
-
-        if (err)
-            return res.status(500).json(err);
-
-        res.json(datos);
-
-    });
-
+    res.json(datos);
+  });
 };
 
 // Obtener uno
 const obtenerSocio = (req, res) => {
+  Socios.obtenerSocioPorId(
+    req.params.id,
 
-    Socios.obtenerSocioPorId(
+    (err, datos) => {
+      if (err) return res.status(500).json(err);
 
-        req.params.id,
-
-        (err, datos) => {
-
-            if (err)
-                return res.status(500).json(err);
-
-            res.json(datos[0]);
-
-        }
-
-    );
-
+      res.json(datos[0]);
+    },
+  );
 };
 
 // Crear
 const crearSocio = (req, res) => {
+  Socios.crearSocio(
+    req.body,
 
-    Socios.crearSocio(
+    (err, resultado) => {
+      if (err) return res.status(500).json(err);
 
-        req.body,
+      res.json({
+        mensaje: "Socio creado",
 
-        (err, resultado) => {
-
-            if (err)
-                return res.status(500).json(err);
-
-            res.json({
-
-                mensaje: "Socio creado",
-
-                id: resultado.insertId
-
-            });
-
-        }
-
-    );
-
+        id: resultado.insertId,
+      });
+    },
+  );
 };
 
 // Actualizar
 const actualizarSocio = (req, res) => {
+  Socios.actualizarSocio(
+    req.params.id,
 
-    Socios.actualizarSocio(
+    req.body,
 
-        req.params.id,
+    (err, resultado) => {
+      if (err) {
+        console.error("Error al actualizar socio:", err);
 
-        req.body,
+        return res.status(500).json({
+          mensaje: "Error al actualizar el socio",
+          error: err,
+        });
+      }
 
-        (err) => {
+      console.log("ID recibido:", req.params.id);
+      console.log("Datos recibidos:", req.body);
+      console.log("Filas modificadas:", resultado.affectedRows);
 
-            if (err)
-                return res.status(500).json(err);
+      if (resultado.affectedRows === 0) {
+        return res.status(404).json({
+          mensaje: "No se encontró el socio para actualizar",
+        });
+      }
 
-            res.json({
+      res.json({
+        mensaje: "Socio actualizado correctamente",
 
-                mensaje: "Socio actualizado"
-
-            });
-
-        }
-
-    );
-
+        filasModificadas: resultado.affectedRows,
+      });
+    },
+  );
 };
 
 // Eliminar
 const eliminarSocio = (req, res) => {
+  Socios.eliminarSocio(
+    req.params.id,
 
-    Socios.eliminarSocio(
+    (err) => {
+      if (err) return res.status(500).json(err);
 
-        req.params.id,
-
-        (err) => {
-
-            if (err)
-                return res.status(500).json(err);
-
-            res.json({
-
-                mensaje: "Socio eliminado"
-
-            });
-
-        }
-
-    );
-
+      res.json({
+        mensaje: "Socio eliminado",
+      });
+    },
+  );
 };
 
 module.exports = {
+  listarSocios,
 
-    listarSocios,
+  obtenerSocio,
 
-    obtenerSocio,
+  crearSocio,
 
-    crearSocio,
+  actualizarSocio,
 
-    actualizarSocio,
-
-    eliminarSocio
-
+  eliminarSocio,
 };
