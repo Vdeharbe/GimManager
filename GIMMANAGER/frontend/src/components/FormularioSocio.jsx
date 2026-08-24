@@ -28,13 +28,13 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
       return;
     }
 
-   const socio = {
-  ...(socioAEditar && { id: socioAEditar.id }),
-  nombre: nombre.trim(),
-  email: email.trim(),
-  plan,
-  estado: socioAEditar?.estado || "Activo",
-};
+    const socio = {
+      ...(socioAEditar && { id: socioAEditar.id }),
+      nombre: nombre.trim(),
+      email: email.trim(),
+      plan,
+      estado: socioAEditar?.estado || "Activo",
+    };
 
     try {
       await agregarSocio(socio);
