@@ -7,17 +7,36 @@ function Login() {
 
   const [password, setPassword] = useState("");
 
+  const [cargando, setCargando] = useState(false);
+
   const navigate = useNavigate();
 
   const { login } = useAuth();
 
-  const ingresar = () => {
-    const ok = login(email, password);
+  const ingresar = async () => {
+    if (!email || !password) {
+      alert("Por favor completa email y contraseña");
+      return;
+    }
 
-    if (ok) {
-      navigate("/dashboard");
-    } else {
-      alert("Usuario o contraseña incorrectos");
+    try {
+      setCargando(true);
+      console.log("📧 Enviando credenciales...");
+      
+      const ok = await login(email, password);
+
+      if (ok) {
+        console.log("✅ Login exitoso, redirigiendo...");
+        navigate("/dashboard");
+      } else {
+        console.error("❌ Login fallido");
+        alert("Usuario o contraseña incorrectos");
+      }
+    } catch (error) {
+      console.error("❌ Error durante login:", error);
+      alert("Error al conectar con el servidor");
+    } finally {
+      setCargando(false);
     }
   };
 
@@ -30,6 +49,7 @@ function Login() {
         placeholder="Email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
+        disabled={cargando}
       />
 
       <input
@@ -38,10 +58,15 @@ function Login() {
         placeholder="Contraseña"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
+        disabled={cargando}
       />
 
-      <button className="btn btn-primary" onClick={ingresar}>
-        Ingresar
+      <button 
+        className="btn btn-primary" 
+        onClick={ingresar}
+        disabled={cargando}
+      >
+        {cargando ? "Cargando..." : "Ingresar"}
       </button>
     </div>
   );

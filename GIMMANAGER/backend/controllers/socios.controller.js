@@ -1,103 +1,157 @@
 const Socios = require("../models/socios.model");
 
-// Obtener todos
+// Listar todos los socios
 const listarSocios = (req, res) => {
-  Socios.obtenerSocios((err, datos) => {
-    if (err) return res.status(500).json(err);
-
-    res.json(datos);
-  });
+    Socios.obtenerSocios((err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                mensaje: "Error al obtener socios",
+                error: err
+            });
+        }
+        res.json({
+            mensaje: "Socios obtenidos correctamente",
+            socios: result
+        });
+    });
 };
 
-// Obtener uno
+// Obtener un socio por ID
 const obtenerSocio = (req, res) => {
-  Socios.obtenerSocioPorId(
-    req.params.id,
+    const { id } = req.params;
 
-    (err, datos) => {
-      if (err) return res.status(500).json(err);
+    if (!id) {
+        return res.status(400).json({
+            mensaje: "El ID del socio es obligatorio"
+        });
+    }
 
-      res.json(datos[0]);
-    },
-  );
+    Socios.obtenerSocioPorId(id, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                mensaje: "Error al obtener el socio",
+                error: err
+            });
+        }
+
+        if (result.length === 0) {
+            return res.status(404).json({
+                mensaje: "Socio no encontrado"
+            });
+        }
+
+        res.json({
+            mensaje: "Socio obtenido correctamente",
+            socio: result[0]
+        });
+    });
 };
 
-// Crear
+// Crear un nuevo socio
 const crearSocio = (req, res) => {
-  Socios.crearSocio(
-    req.body,
+    const { nombre, email, plan, estado } = req.body;
 
-    (err, resultado) => {
-      if (err) return res.status(500).json(err);
+    if (!nombre || !email || !plan || !estado) {
+        return res.status(400).json({
+            mensaje: "Nombre, email, plan y estado son obligatorios"
+        });
+    }
 
-      res.json({
-        mensaje: "Socio creado",
+    const nuevoSocio = { nombre, email, plan, estado };
 
-        id: resultado.insertId,
-      });
-    },
-  );
+    Socios.crearSocio(nuevoSocio, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                mensaje: "Error al crear el socio",
+                error: err
+            });
+        }
+
+        res.status(201).json({
+            mensaje: "Socio creado correctamente",
+            id: result.insertId
+        });
+    });
 };
 
-// Actualizar
+// Actualizar un socio
 const actualizarSocio = (req, res) => {
-  Socios.actualizarSocio(
-    req.params.id,
+    const { id } = req.params;
+    const { nombre, email, plan, estado } = req.body;
 
-    req.body,
-
-    (err, resultado) => {
-      if (err) {
-        console.error("Error al actualizar socio:", err);
-
-        return res.status(500).json({
-          mensaje: "Error al actualizar el socio",
-          error: err,
+    if (!id) {
+        return res.status(400).json({
+            mensaje: "El ID del socio es obligatorio"
         });
-      }
+    }
 
-      console.log("ID recibido:", req.params.id);
-      console.log("Datos recibidos:", req.body);
-      console.log("Filas modificadas:", resultado.affectedRows);
-
-      if (resultado.affectedRows === 0) {
-        return res.status(404).json({
-          mensaje: "No se encontró el socio para actualizar",
+    if (!nombre || !email || !plan || !estado) {
+        return res.status(400).json({
+            mensaje: "Nombre, email, plan y estado son obligatorios"
         });
-      }
+    }
 
-      res.json({
-        mensaje: "Socio actualizado correctamente",
+    const socioActualizado = { nombre, email, plan, estado };
 
-        filasModificadas: resultado.affectedRows,
-      });
-    },
-  );
+    Socios.actualizarSocio(id, socioActualizado, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                mensaje: "Error al actualizar el socio",
+                error: err
+            });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                mensaje: "Socio no encontrado"
+            });
+        }
+
+        res.json({
+            mensaje: "Socio actualizado correctamente"
+        });
+    });
 };
 
-// Eliminar
+// Eliminar un socio
 const eliminarSocio = (req, res) => {
-  Socios.eliminarSocio(
-    req.params.id,
+    const { id } = req.params;
 
-    (err) => {
-      if (err) return res.status(500).json(err);
+    if (!id) {
+        return res.status(400).json({
+            mensaje: "El ID del socio es obligatorio"
+        });
+    }
 
-      res.json({
-        mensaje: "Socio eliminado",
-      });
-    },
-  );
+    Socios.eliminarSocio(id, (err, result) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({
+                mensaje: "Error al eliminar el socio",
+                error: err
+            });
+        }
+
+        if (result.affectedRows === 0) {
+            return res.status(404).json({
+                mensaje: "Socio no encontrado"
+            });
+        }
+
+        res.json({
+            mensaje: "Socio eliminado correctamente"
+        });
+    });
 };
 
 module.exports = {
-  listarSocios,
-
-  obtenerSocio,
-
-  crearSocio,
-
-  actualizarSocio,
-
-  eliminarSocio,
+    listarSocios,
+    obtenerSocio,
+    crearSocio,
+    actualizarSocio,
+    eliminarSocio
 };

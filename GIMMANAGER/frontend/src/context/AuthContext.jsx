@@ -1,4 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
+import { loginUsuario } from "../services/authService";
 
 const AuthContext = createContext();
 
@@ -16,19 +17,26 @@ export function AuthProvider({ children }) {
     }
   }, [usuario]);
 
-  const login = (email, password) => {
-    if (email === "admin@gym.com" && password === "123456") {
-      const datos = {
-        nombre: "Administrador",
-        email,
-        foto: "https://i.pravatar.cc/100?img=12",
-      };
-
-      setUsuario(datos);
-      return true;
+  const login = async (email, password) => {
+    try {
+      console.log("🔐 AuthContext.login iniciado");
+      const respuesta = await loginUsuario(email, password);
+      
+      console.log("📨 Respuesta completa:", respuesta);
+      console.log("👤 Usuario en respuesta:", respuesta.usuario);
+      
+      if (respuesta.usuario) {
+        console.log("✅ Usuario validado, guardando en estado");
+        setUsuario(respuesta.usuario);
+        return true;
+      }
+      
+      console.error("❌ No hay usuario en la respuesta");
+      return false;
+    } catch (error) {
+      console.error("❌ Error en AuthContext.login:", error);
+      return false;
     }
-
-    return false;
   };
 
   const logout = () => {

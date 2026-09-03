@@ -2,7 +2,7 @@ import api from "./api";
 
 export const obtenerSocios = async () => {
   const respuesta = await api.get("/socios");
-  return respuesta.data;
+  return respuesta.data.socios;
 };
 export const crearSocio = async (socio) => {
   const respuesta = await api.post("/socios", socio);

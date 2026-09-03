@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   obtenerSocios,
@@ -10,6 +11,8 @@ import {
 import FormularioSocio from "../components/FormularioSocio";
 
 function Socios() {
+
+  const navigate = useNavigate();
 
   // Lista de socios
   const [socios, setSocios] = useState([]);
@@ -241,6 +244,13 @@ function Socios() {
   return (
 
     <div className="container mt-4">
+
+      <button 
+        className="btn btn-outline-secondary mb-3" 
+        onClick={() => navigate("/dashboard")}
+      >
+        ← Volver al Dashboard
+      </button>
 
       {/* TÍTULO Y BOTÓN ACTUALIZAR */}
 
