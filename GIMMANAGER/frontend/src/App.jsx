@@ -9,6 +9,7 @@ import Pagos from "./pages/Pagos";
 import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
+
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
 
@@ -17,8 +18,12 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Navbar />
+
         <Routes>
+          {/* RUTA PÚBLICA */}
           <Route path="/" element={<Login />} />
+
+          {/* RUTAS PROTEGIDAS */}
 
           <Route
             path="/dashboard"
@@ -29,12 +34,52 @@ function App() {
             }
           />
 
-          <Route path="/socios" element={<Socios />} />
-          <Route path="/profesores" element={<Profesores />} />
-          <Route path="/pagos" element={<Pagos />} />
-          <Route path="/reportes" element={<Reportes />} />
-          <Route path="/configuracion" element={<Configuracion />} />
+          <Route
+            path="/socios"
+            element={
+              <ProtectedRoute>
+                <Socios />
+              </ProtectedRoute>
+            }
+          />
 
+          <Route
+            path="/profesores"
+            element={
+              <ProtectedRoute>
+                <Profesores />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/pagos"
+            element={
+              <ProtectedRoute>
+                <Pagos />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/reportes"
+            element={
+              <ProtectedRoute>
+                <Reportes />
+              </ProtectedRoute>
+            }
+          />
+
+          <Route
+            path="/configuracion"
+            element={
+              <ProtectedRoute>
+                <Configuracion />
+              </ProtectedRoute>
+            }
+          />
+
+          {/* RUTA PARA PÁGINAS INEXISTENTES */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
@@ -43,5 +88,3 @@ function App() {
 }
 
 export default App;
-
-
