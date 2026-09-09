@@ -20,18 +20,23 @@ export function AuthProvider({ children }) {
   const login = async (email, password) => {
     try {
       console.log("🔐 AuthContext.login iniciado");
+
       const respuesta = await loginUsuario(email, password);
-      
+
       console.log("📨 Respuesta completa:", respuesta);
       console.log("👤 Usuario en respuesta:", respuesta.usuario);
-      
-      if (respuesta.usuario) {
-        console.log("✅ Usuario validado, guardando en estado");
+
+      if (respuesta.usuario && respuesta.token) {
+        console.log("✅ Usuario validado, guardando usuario y token");
+
         setUsuario(respuesta.usuario);
+
+        localStorage.setItem("token", respuesta.token);
+
         return true;
       }
-      
-      console.error("❌ No hay usuario en la respuesta");
+
+      console.error("❌ No hay usuario o token en la respuesta");
       return false;
     } catch (error) {
       console.error("❌ Error en AuthContext.login:", error);
@@ -41,6 +46,7 @@ export function AuthProvider({ children }) {
 
   const logout = () => {
     setUsuario(null);
+    localStorage.removeItem("token");
   };
 
   return (

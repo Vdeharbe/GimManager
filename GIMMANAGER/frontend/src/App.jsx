@@ -9,6 +9,7 @@ import Pagos from "./pages/Pagos";
 import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
+import RoleRoute from "./context/RoleRoute";
 
 import { AuthProvider } from "./context/AuthContext";
 import ProtectedRoute from "./context/ProtectedRoute";
@@ -71,13 +72,13 @@ function App() {
           />
 
           <Route
-            path="/configuracion"
-            element={
-              <ProtectedRoute>
-                <Configuracion />
-              </ProtectedRoute>
-            }
-          />
+  path="/configuracion"
+  element={
+    <RoleRoute roles={["admin"]}>
+      <Configuracion />
+    </RoleRoute>
+  }
+/>
 
           {/* RUTA PARA PÁGINAS INEXISTENTES */}
           <Route path="*" element={<NotFound />} />

@@ -1,4 +1,6 @@
+
 const Usuarios = require("../models/usuarios.model");
+const jwt = require("jsonwebtoken");
 
 // Login
 const login = (req, res) => {
@@ -6,8 +8,8 @@ const login = (req, res) => {
     console.log("=== SOLICITUD LOGIN ===");
     console.log("Método:", req.method);
     console.log("URL:", req.url);
-    console.log("Headers Content-Type:", req.headers['content-type']);
-    console.log("Content-Length:", req.headers['content-length']);
+    console.log("Headers Content-Type:", req.headers["content-type"]);
+    console.log("Content-Length:", req.headers["content-length"]);
     console.log("Body completo:", req.body);
     console.log("=======================");
 
@@ -63,8 +65,31 @@ const login = (req, res) => {
 
             }
 
+            // ==========================================
+            // GENERAR TOKEN JWT
+            // ==========================================
+
+            const token = jwt.sign(
+                {
+                    id: usuario.id,
+                    email: usuario.email,
+                    rol: usuario.rol
+                },
+                process.env.JWT_SECRET,
+                {
+                    expiresIn: "2h"
+                }
+            );
+
+            // ==========================================
+            // RESPUESTA DEL LOGIN
+            // ==========================================
+
             res.json({
                 mensaje: "Login correcto",
+
+                token,
+
                 usuario: {
                     id: usuario.id,
                     nombre: usuario.nombre,
@@ -81,3 +106,4 @@ const login = (req, res) => {
 module.exports = {
     login
 };
+
