@@ -83,7 +83,111 @@ const login = (req, res) => {
     });
   });
 };
+const registrarUsuario = (req, res) => {
+
+    const {
+        nombre,
+        email,
+        password,
+        rol
+    } = req.body;
+
+    // Validar campos obligatorios
+    if (!nombre || !email || !password || !rol) {
+        return res.status(400).json({
+            mensaje: "Todos los campos son obligatorios"
+        });
+    }
+
+    // Verificar si el usuario ya existe
+    Usuarios.buscarUsuarioPorEmail(
+        email,
+        async (err, usuarios) => {
+
+            if (err) {
+                console.error(err);
+
+                return res.status(500).json({
+                    mensaje: "Error en el servidor"
+                });
+            }
+
+            if (usuarios.length > 0) {
+                return res.status(409).json({
+                    mensaje: "El email ya está registrado"
+                });
+            }
+
+            try {
+
+                // Generar hash
+                const passwordHash = await bcrypt.hash(
+                    password,
+                    10
+                );
+
+                const nuevoUsuario = {
+                    nombre,
+                    email,
+                    password: passwordHash,
+                    rol
+                };
+
+                Usuarios.crearUsuario(
+                    nuevoUsuario,
+                    (err, resultado) => {
+
+                        if (err) {
+                            console.error(err);
+
+                            return res.status(500).json({
+                                mensaje: "Error al crear usuario"
+                            });
+                        }
+
+                        return res.status(201).json({
+                            mensaje: "Usuario creado correctamente",
+                            usuario: {
+                                id: resultado.insertId,
+                                nombre,
+                                email,
+                                rol
+                            }
+                        });
+
+                    }
+                );
+
+            } catch (error) {
+
+                console.error(error);
+
+                return res.status(500).json({
+                    mensaje: "Error al procesar la contraseña"
+                });
+            }
+
+        }
+    );
+};
+const obtenerUsuarios = (req, res) => {
+
+    Usuarios.listarUsuarios((err, usuarios) => {
+
+        if (err) {
+            console.error(err);
+
+            return res.status(500).json({
+                mensaje: "Error al obtener usuarios"
+            });
+        }
+
+        return res.json(usuarios);
+    });
+};
 
 module.exports = {
   login,
+  registrarUsuario,
+  obtenerUsuarios
 };
