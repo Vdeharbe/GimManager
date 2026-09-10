@@ -84,110 +84,152 @@ const login = (req, res) => {
   });
 };
 const registrarUsuario = (req, res) => {
+  const { nombre, email, password, rol } = req.body;
 
-    const {
-        nombre,
-        email,
-        password,
-        rol
-    } = req.body;
+  // Validar campos obligatorios
+  if (!nombre || !email || !password || !rol) {
+    return res.status(400).json({
+      mensaje: "Todos los campos son obligatorios",
+    });
+  }
 
-    // Validar campos obligatorios
-    if (!nombre || !email || !password || !rol) {
-        return res.status(400).json({
-            mensaje: "Todos los campos son obligatorios"
-        });
+  // Verificar si el usuario ya existe
+  Usuarios.buscarUsuarioPorEmail(email, async (err, usuarios) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        mensaje: "Error en el servidor",
+      });
     }
 
-    // Verificar si el usuario ya existe
-    Usuarios.buscarUsuarioPorEmail(
+    if (usuarios.length > 0) {
+      return res.status(409).json({
+        mensaje: "El email ya está registrado",
+      });
+    }
+
+    try {
+      // Generar hash
+      const passwordHash = await bcrypt.hash(password, 10);
+
+      const nuevoUsuario = {
+        nombre,
         email,
-        async (err, usuarios) => {
+        password: passwordHash,
+        rol,
+      };
 
-            if (err) {
-                console.error(err);
+      Usuarios.crearUsuario(nuevoUsuario, (err, resultado) => {
+        if (err) {
+          console.error(err);
 
-                return res.status(500).json({
-                    mensaje: "Error en el servidor"
-                });
-            }
-
-            if (usuarios.length > 0) {
-                return res.status(409).json({
-                    mensaje: "El email ya está registrado"
-                });
-            }
-
-            try {
-
-                // Generar hash
-                const passwordHash = await bcrypt.hash(
-                    password,
-                    10
-                );
-
-                const nuevoUsuario = {
-                    nombre,
-                    email,
-                    password: passwordHash,
-                    rol
-                };
-
-                Usuarios.crearUsuario(
-                    nuevoUsuario,
-                    (err, resultado) => {
-
-                        if (err) {
-                            console.error(err);
-
-                            return res.status(500).json({
-                                mensaje: "Error al crear usuario"
-                            });
-                        }
-
-                        return res.status(201).json({
-                            mensaje: "Usuario creado correctamente",
-                            usuario: {
-                                id: resultado.insertId,
-                                nombre,
-                                email,
-                                rol
-                            }
-                        });
-
-                    }
-                );
-
-            } catch (error) {
-
-                console.error(error);
-
-                return res.status(500).json({
-                    mensaje: "Error al procesar la contraseña"
-                });
-            }
-
+          return res.status(500).json({
+            mensaje: "Error al crear usuario",
+          });
         }
-    );
+
+        return res.status(201).json({
+          mensaje: "Usuario creado correctamente",
+          usuario: {
+            id: resultado.insertId,
+            nombre,
+            email,
+            rol,
+          },
+        });
+      });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        mensaje: "Error al procesar la contraseña",
+      });
+    }
+  });
 };
 const obtenerUsuarios = (req, res) => {
+  Usuarios.listarUsuarios((err, usuarios) => {
+    if (err) {
+      console.error(err);
 
-    Usuarios.listarUsuarios((err, usuarios) => {
+      return res.status(500).json({
+        mensaje: "Error al obtener usuarios",
+      });
+    }
 
-        if (err) {
-            console.error(err);
+    return res.json(usuarios);
+  });
+};
 
-            return res.status(500).json({
-                mensaje: "Error al obtener usuarios"
-            });
-        }
+const actualizarUsuario = (req, res) => {
+  const { id } = req.params;
 
-        return res.json(usuarios);
+  const { nombre, email, rol } = req.body;
+
+  if (!nombre || !email || !rol) {
+    return res.status(400).json({
+      mensaje: "Nombre, email y rol son obligatorios",
     });
+  }
+
+  Usuarios.actualizarUsuario(
+    id,
+    {
+      nombre,
+      email,
+      rol,
+    },
+    (err, resultado) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          mensaje: "Error al actualizar usuario",
+        });
+      }
+
+      if (resultado.affectedRows === 0) {
+        return res.status(404).json({
+          mensaje: "Usuario no encontrado",
+        });
+      }
+
+      return res.json({
+        mensaje: "Usuario actualizado correctamente",
+      });
+    },
+  );
+};
+
+const eliminarUsuario = (req, res) => {
+  const { id } = req.params;
+
+  Usuarios.eliminarUsuario(id, (err, resultado) => {
+    if (err) {
+      console.error(err);
+
+      return res.status(500).json({
+        mensaje: "Error al eliminar usuario",
+      });
+    }
+
+    if (resultado.affectedRows === 0) {
+      return res.status(404).json({
+        mensaje: "Usuario no encontrado",
+      });
+    }
+
+    return res.json({
+      mensaje: "Usuario eliminado correctamente",
+    });
+  });
 };
 
 module.exports = {
   login,
   registrarUsuario,
-  obtenerUsuarios
+  obtenerUsuarios,
+  actualizarUsuario,
+  eliminarUsuario,
 };

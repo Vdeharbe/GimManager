@@ -17,13 +17,29 @@ const crearUsuario = (usuario, callback) => {
 };
 
 const listarUsuarios = (callback) => {
-    db.query(
-        "SELECT id, nombre, email, rol FROM usuarios",
-        callback
-    );
+  db.query("SELECT id, nombre, email, rol FROM usuarios", callback);
 };
+
+const actualizarUsuario = (id, usuario, callback) => {
+  const { nombre, email, rol } = usuario;
+
+  db.query(
+    `UPDATE usuarios
+         SET nombre = ?, email = ?, rol = ?
+         WHERE id = ?`,
+    [nombre, email, rol, id],
+    callback,
+  );
+};
+
+const eliminarUsuario = (id, callback) => {
+  db.query("DELETE FROM usuarios WHERE id = ?", [id], callback);
+};
+
 module.exports = {
   buscarUsuarioPorEmail,
   crearUsuario,
-  listarUsuarios
+  listarUsuarios,
+  actualizarUsuario,
+  eliminarUsuario,
 };
