@@ -1,5 +1,5 @@
 const express = require("express");
-const { verificarToken } = require("../middleware/auth.middleware");
+const { verificarToken, verificarRol } = require("../middleware/auth.middleware");
 const router = express.Router();
 
 const {
@@ -11,13 +11,10 @@ const {
 } = require("../controllers/socios.controller");
 
 router.get("/", verificarToken, listarSocios);
-
 router.get("/:id", verificarToken, obtenerSocio);
 
-router.post("/", verificarToken, crearSocio);
-
-router.put("/:id", verificarToken, actualizarSocio);
-
-router.delete("/:id", verificarToken, eliminarSocio);
+router.post("/", verificarToken, verificarRol(["admin"]), crearSocio);
+router.put("/:id", verificarToken, verificarRol(["admin"]), actualizarSocio);
+router.delete("/:id", verificarToken, verificarRol(["admin"]), eliminarSocio);
 
 module.exports = router;
