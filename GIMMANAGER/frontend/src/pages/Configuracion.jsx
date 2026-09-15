@@ -6,6 +6,7 @@ import {
   registrarUsuario,
   actualizarUsuario,
   eliminarUsuario,
+  cambiarPassword,
 } from "../services/usuariosService";
 
 function Configuracion() {
@@ -15,6 +16,7 @@ function Configuracion() {
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
 
+  // Formulario crear / editar usuario
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -22,6 +24,11 @@ function Configuracion() {
 
   const [guardando, setGuardando] = useState(false);
   const [usuarioEditando, setUsuarioEditando] = useState(null);
+
+  // Cambio de contraseña
+  const [usuarioPassword, setUsuarioPassword] = useState(null);
+  const [nuevaPassword, setNuevaPassword] = useState("");
+  const [cambiandoPassword, setCambiandoPassword] = useState(false);
 
   // ==========================================
   // CARGAR USUARIOS
@@ -70,8 +77,6 @@ function Configuracion() {
       return;
     }
 
-    // La contraseña solo es obligatoria
-    // cuando creamos un usuario nuevo
     if (!usuarioEditando && !password) {
       alert("La contraseña es obligatoria");
       return;
@@ -81,18 +86,19 @@ function Configuracion() {
       setGuardando(true);
 
       if (usuarioEditando) {
-        // EDITAR
         const datosActualizados = {
           nombre,
           email,
           rol,
         };
 
-        await actualizarUsuario(usuarioEditando.id, datosActualizados);
+        await actualizarUsuario(
+          usuarioEditando.id,
+          datosActualizados
+        );
 
         alert("Usuario actualizado correctamente");
       } else {
-        // CREAR
         const nuevoUsuario = {
           nombre,
           email,
@@ -106,11 +112,11 @@ function Configuracion() {
       }
 
       limpiarFormulario();
-
       await cargarUsuarios();
     } catch (error) {
       const mensaje =
-        error.response?.data?.mensaje || "Error al guardar usuario";
+        error.response?.data?.mensaje ||
+        "Error al guardar usuario";
 
       alert(mensaje);
     } finally {
@@ -145,7 +151,7 @@ function Configuracion() {
 
   const borrarUsuario = async (id, nombreUsuario) => {
     const confirmar = window.confirm(
-      `¿Seguro que deseas eliminar al usuario ${nombreUsuario}?`,
+      `¿Seguro que deseas eliminar al usuario ${nombreUsuario}?`
     );
 
     if (!confirmar) {
@@ -160,14 +166,74 @@ function Configuracion() {
       await cargarUsuarios();
     } catch (error) {
       const mensaje =
-        error.response?.data?.mensaje || "Error al eliminar usuario";
+        error.response?.data?.mensaje ||
+        "Error al eliminar usuario";
 
       alert(mensaje);
     }
   };
 
+  // ==========================================
+  // ABRIR CAMBIO DE CONTRASEÑA
+  // ==========================================
+
+  const abrirCambioPassword = (usuario) => {
+    setUsuarioPassword(usuario);
+    setNuevaPassword("");
+  };
+
+  // ==========================================
+  // CANCELAR CAMBIO DE CONTRASEÑA
+  // ==========================================
+
+  const cancelarCambioPassword = () => {
+    setUsuarioPassword(null);
+    setNuevaPassword("");
+  };
+
+  // ==========================================
+  // GUARDAR NUEVA CONTRASEÑA
+  // ==========================================
+
+  const guardarNuevaPassword = async (e) => {
+    e.preventDefault();
+
+    if (!nuevaPassword) {
+      alert("Ingresa la nueva contraseña");
+      return;
+    }
+
+    if (nuevaPassword.length < 6) {
+      alert("La contraseña debe tener al menos 6 caracteres");
+      return;
+    }
+
+    try {
+      setCambiandoPassword(true);
+
+      await cambiarPassword(
+        usuarioPassword.id,
+        nuevaPassword
+      );
+
+      alert("Contraseña actualizada correctamente");
+
+      setUsuarioPassword(null);
+      setNuevaPassword("");
+    } catch (error) {
+      const mensaje =
+        error.response?.data?.mensaje ||
+        "Error al cambiar la contraseña";
+
+      alert(mensaje);
+    } finally {
+      setCambiandoPassword(false);
+    }
+  };
+
   return (
     <div className="container mt-4">
+
       {/* ====================================== */}
       {/* TÍTULO Y VOLVER AL MENÚ */}
       {/* ====================================== */}
@@ -185,88 +251,103 @@ function Configuracion() {
       </div>
 
       {/* ====================================== */}
-      {/* FORMULARIO */}
+      {/* FORMULARIO CREAR / EDITAR */}
       {/* ====================================== */}
 
       <div className="card mb-4">
         <div className="card-header">
           <strong>
-            {usuarioEditando ? "Editar usuario" : "Nuevo usuario"}
+            {usuarioEditando
+              ? "Editar usuario"
+              : "Nuevo usuario"}
           </strong>
         </div>
 
         <div className="card-body">
           <form onSubmit={guardarUsuario}>
+
             <div className="row">
-              {/* NOMBRE */}
 
               <div className="col-md-6 mb-3">
-                <label className="form-label">Nombre</label>
+                <label className="form-label">
+                  Nombre
+                </label>
 
                 <input
                   type="text"
                   className="form-control"
                   value={nombre}
-                  onChange={(e) => setNombre(e.target.value)}
+                  onChange={(e) =>
+                    setNombre(e.target.value)
+                  }
                   placeholder="Nombre del usuario"
                 />
               </div>
 
-              {/* EMAIL */}
-
               <div className="col-md-6 mb-3">
-                <label className="form-label">Email</label>
+                <label className="form-label">
+                  Email
+                </label>
 
                 <input
                   type="email"
                   className="form-control"
                   value={email}
-                  onChange={(e) => setEmail(e.target.value)}
+                  onChange={(e) =>
+                    setEmail(e.target.value)
+                  }
                   placeholder="usuario@gym.com"
                 />
               </div>
+
             </div>
 
             <div className="row">
-              {/* CONTRASEÑA */}
 
               <div className="col-md-6 mb-3">
-                <label className="form-label">Contraseña</label>
+                <label className="form-label">
+                  Contraseña
+                </label>
 
                 <input
                   type="password"
                   className="form-control"
                   value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  onChange={(e) =>
+                    setPassword(e.target.value)
+                  }
                   placeholder={
                     usuarioEditando
-                      ? "No se modifica durante la edición"
+                      ? "Usa Cambiar contraseña"
                       : "Contraseña"
                   }
                   disabled={usuarioEditando !== null}
                 />
               </div>
 
-              {/* ROL */}
-
               <div className="col-md-6 mb-3">
-                <label className="form-label">Rol</label>
+                <label className="form-label">
+                  Rol
+                </label>
 
                 <select
                   className="form-select"
                   value={rol}
-                  onChange={(e) => setRol(e.target.value)}
+                  onChange={(e) =>
+                    setRol(e.target.value)
+                  }
                 >
-                  <option value="instructor">Instructor</option>
+                  <option value="instructor">
+                    Instructor
+                  </option>
 
-                  <option value="admin">Administrador</option>
+                  <option value="admin">
+                    Administrador
+                  </option>
                 </select>
               </div>
-            </div>
 
-            {/* ================================= */}
-            {/* BOTONES DEL FORMULARIO */}
-            {/* ================================= */}
+            </div>
 
             <button
               type="submit"
@@ -280,8 +361,6 @@ function Configuracion() {
                   : "Crear usuario"}
             </button>
 
-            {/* CANCELAR SOLO APARECE AL EDITAR */}
-
             {usuarioEditando && (
               <button
                 type="button"
@@ -292,23 +371,93 @@ function Configuracion() {
                 Cancelar
               </button>
             )}
+
           </form>
         </div>
       </div>
 
       {/* ====================================== */}
-      {/* LISTADO DE USUARIOS */}
+      {/* CAMBIO DE CONTRASEÑA */}
       {/* ====================================== */}
 
-      <h4 className="mb-3">Usuarios registrados</h4>
+      {usuarioPassword && (
+        <div className="card mb-4">
+          <div className="card-header">
+            <strong>
+              Cambiar contraseña de{" "}
+              {usuarioPassword.nombre}
+            </strong>
+          </div>
 
-      {cargando && <p>Cargando usuarios...</p>}
+          <div className="card-body">
 
-      {error && <div className="alert alert-danger">{error}</div>}
+            <form onSubmit={guardarNuevaPassword}>
+
+              <div className="mb-3">
+                <label className="form-label">
+                  Nueva contraseña
+                </label>
+
+                <input
+                  type="password"
+                  className="form-control"
+                  value={nuevaPassword}
+                  onChange={(e) =>
+                    setNuevaPassword(e.target.value)
+                  }
+                  placeholder="Nueva contraseña"
+                  autoComplete="new-password"
+                />
+              </div>
+
+              <button
+                type="submit"
+                className="btn btn-primary"
+                disabled={cambiandoPassword}
+              >
+                {cambiandoPassword
+                  ? "Actualizando..."
+                  : "Guardar contraseña"}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-secondary ms-2"
+                onClick={cancelarCambioPassword}
+                disabled={cambiandoPassword}
+              >
+                Cancelar
+              </button>
+
+            </form>
+
+          </div>
+        </div>
+      )}
+
+      {/* ====================================== */}
+      {/* LISTADO */}
+      {/* ====================================== */}
+
+      <h4 className="mb-3">
+        Usuarios registrados
+      </h4>
+
+      {cargando && (
+        <p>Cargando usuarios...</p>
+      )}
+
+      {error && (
+        <div className="alert alert-danger">
+          {error}
+        </div>
+      )}
 
       {!cargando && !error && (
         <div className="table-responsive">
+
           <table className="table table-bordered table-striped">
+
             <thead>
               <tr>
                 <th>ID</th>
@@ -320,43 +469,64 @@ function Configuracion() {
             </thead>
 
             <tbody>
+
               {usuarios.map((usuario) => (
+
                 <tr key={usuario.id}>
+
                   <td>{usuario.id}</td>
-
                   <td>{usuario.nombre}</td>
-
                   <td>{usuario.email}</td>
-
                   <td>{usuario.rol}</td>
 
                   <td>
-                    {/* EDITAR */}
 
                     <button
                       type="button"
                       className="btn btn-warning btn-sm me-2"
-                      onClick={() => editarUsuario(usuario)}
+                      onClick={() =>
+                        editarUsuario(usuario)
+                      }
                     >
                       Editar
                     </button>
 
-                    {/* ELIMINAR */}
+                    <button
+                      type="button"
+                      className="btn btn-info btn-sm me-2"
+                      onClick={() =>
+                        abrirCambioPassword(usuario)
+                      }
+                    >
+                      Cambiar contraseña
+                    </button>
 
                     <button
                       type="button"
                       className="btn btn-danger btn-sm"
-                      onClick={() => borrarUsuario(usuario.id, usuario.nombre)}
+                      onClick={() =>
+                        borrarUsuario(
+                          usuario.id,
+                          usuario.nombre
+                        )
+                      }
                     >
                       Eliminar
                     </button>
+
                   </td>
+
                 </tr>
+
               ))}
+
             </tbody>
+
           </table>
+
         </div>
       )}
+
     </div>
   );
 }

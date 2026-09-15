@@ -35,6 +35,15 @@ const actualizarUsuario = (id, usuario, callback) => {
 const eliminarUsuario = (id, callback) => {
   db.query("DELETE FROM usuarios WHERE id = ?", [id], callback);
 };
+const actualizarPassword = (id, password, callback) => {
+  db.query(
+    `UPDATE usuarios
+         SET password = ?
+         WHERE id = ?`,
+    [password, id],
+    callback,
+  );
+};
 
 module.exports = {
   buscarUsuarioPorEmail,
@@ -42,4 +51,5 @@ module.exports = {
   listarUsuarios,
   actualizarUsuario,
   eliminarUsuario,
+  actualizarPassword,
 };

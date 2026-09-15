@@ -225,6 +225,46 @@ const eliminarUsuario = (req, res) => {
     });
   });
 };
+const cambiarPassword = async (req, res) => {
+  const { id } = req.params;
+  const { nuevaPassword } = req.body;
+
+  if (!nuevaPassword) {
+    return res.status(400).json({
+      mensaje: "La nueva contraseña es obligatoria",
+    });
+  }
+
+  try {
+    const passwordHash = await bcrypt.hash(nuevaPassword, 10);
+
+    Usuarios.actualizarPassword(id, passwordHash, (err, resultado) => {
+      if (err) {
+        console.error(err);
+
+        return res.status(500).json({
+          mensaje: "Error al actualizar la contraseña",
+        });
+      }
+
+      if (resultado.affectedRows === 0) {
+        return res.status(404).json({
+          mensaje: "Usuario no encontrado",
+        });
+      }
+
+      return res.json({
+        mensaje: "Contraseña actualizada correctamente",
+      });
+    });
+  } catch (error) {
+    console.error(error);
+
+    return res.status(500).json({
+      mensaje: "Error al procesar la contraseña",
+    });
+  }
+};
 
 module.exports = {
   login,
@@ -232,4 +272,5 @@ module.exports = {
   obtenerUsuarios,
   actualizarUsuario,
   eliminarUsuario,
+  cambiarPassword,
 };

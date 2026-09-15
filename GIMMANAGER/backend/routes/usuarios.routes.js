@@ -5,6 +5,7 @@ const {
   obtenerUsuarios,
   actualizarUsuario,
   eliminarUsuario,
+  cambiarPassword,
 } = require("../controllers/usuarios.controller");
 
 const {
@@ -26,5 +27,6 @@ router.put("/:id", verificarToken, verificarRol("admin"), actualizarUsuario);
 
 // ELIMINAR USUARIO → SOLO ADMIN
 router.delete("/:id", verificarToken, verificarRol("admin"), eliminarUsuario);
+router.put( "/:id/password", verificarToken, verificarRol("admin"), cambiarPassword);
 
 module.exports = router;
