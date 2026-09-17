@@ -79,3 +79,17 @@ export const cambiarPassword = async (id, nuevaPassword) => {
     throw error;
   }
 };
+// Validar sesión y obtener perfil del usuario autenticado
+export const obtenerPerfil = async () => {
+  try {
+    const respuesta = await api.get("/usuarios/perfil");
+    return respuesta.data;
+  } catch (error) {
+    console.error(
+      "❌ Error al obtener perfil:",
+      error.response?.data || error.message,
+    );
+
+    throw error;
+  }
+};

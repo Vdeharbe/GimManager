@@ -327,6 +327,19 @@ const cambiarPassword = async (req, res) => {
 // ==========================================
 // EXPORTAR CONTROLADORES
 // ==========================================
+// ==========================================
+// OBTENER PERFIL DEL USUARIO AUTENTICADO
+// ==========================================
+
+const obtenerPerfil = (req, res) => {
+  return res.json({
+    usuario: {
+      id: req.usuario.id,
+      email: req.usuario.email,
+      rol: req.usuario.rol,
+    },
+  });
+};
 
 module.exports = {
   login,
@@ -335,4 +348,5 @@ module.exports = {
   actualizarUsuario,
   eliminarUsuario,
   cambiarPassword,
+  obtenerPerfil,
 };
