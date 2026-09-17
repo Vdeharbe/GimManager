@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
 
 import {
   obtenerUsuarios,
@@ -11,7 +12,7 @@ import {
 
 function Configuracion() {
   const navigate = useNavigate();
-
+  const { usuario: usuarioAutenticado } = useAuth();
   const [usuarios, setUsuarios] = useState([]);
   const [cargando, setCargando] = useState(true);
   const [error, setError] = useState("");
@@ -92,10 +93,7 @@ function Configuracion() {
           rol,
         };
 
-        await actualizarUsuario(
-          usuarioEditando.id,
-          datosActualizados
-        );
+        await actualizarUsuario(usuarioEditando.id, datosActualizados);
 
         alert("Usuario actualizado correctamente");
       } else {
@@ -115,8 +113,7 @@ function Configuracion() {
       await cargarUsuarios();
     } catch (error) {
       const mensaje =
-        error.response?.data?.mensaje ||
-        "Error al guardar usuario";
+        error.response?.data?.mensaje || "Error al guardar usuario";
 
       alert(mensaje);
     } finally {
@@ -151,7 +148,7 @@ function Configuracion() {
 
   const borrarUsuario = async (id, nombreUsuario) => {
     const confirmar = window.confirm(
-      `¿Seguro que deseas eliminar al usuario ${nombreUsuario}?`
+      `¿Seguro que deseas eliminar al usuario ${nombreUsuario}?`,
     );
 
     if (!confirmar) {
@@ -166,8 +163,7 @@ function Configuracion() {
       await cargarUsuarios();
     } catch (error) {
       const mensaje =
-        error.response?.data?.mensaje ||
-        "Error al eliminar usuario";
+        error.response?.data?.mensaje || "Error al eliminar usuario";
 
       alert(mensaje);
     }
@@ -211,10 +207,7 @@ function Configuracion() {
     try {
       setCambiandoPassword(true);
 
-      await cambiarPassword(
-        usuarioPassword.id,
-        nuevaPassword
-      );
+      await cambiarPassword(usuarioPassword.id, nuevaPassword);
 
       alert("Contraseña actualizada correctamente");
 
@@ -222,8 +215,7 @@ function Configuracion() {
       setNuevaPassword("");
     } catch (error) {
       const mensaje =
-        error.response?.data?.mensaje ||
-        "Error al cambiar la contraseña";
+        error.response?.data?.mensaje || "Error al cambiar la contraseña";
 
       alert(mensaje);
     } finally {
@@ -233,7 +225,6 @@ function Configuracion() {
 
   return (
     <div className="container mt-4">
-
       {/* ====================================== */}
       {/* TÍTULO Y VOLVER AL MENÚ */}
       {/* ====================================== */}
@@ -257,96 +248,67 @@ function Configuracion() {
       <div className="card mb-4">
         <div className="card-header">
           <strong>
-            {usuarioEditando
-              ? "Editar usuario"
-              : "Nuevo usuario"}
+            {usuarioEditando ? "Editar usuario" : "Nuevo usuario"}
           </strong>
         </div>
 
         <div className="card-body">
           <form onSubmit={guardarUsuario}>
-
             <div className="row">
-
               <div className="col-md-6 mb-3">
-                <label className="form-label">
-                  Nombre
-                </label>
+                <label className="form-label">Nombre</label>
 
                 <input
                   type="text"
                   className="form-control"
                   value={nombre}
-                  onChange={(e) =>
-                    setNombre(e.target.value)
-                  }
+                  onChange={(e) => setNombre(e.target.value)}
                   placeholder="Nombre del usuario"
                 />
               </div>
 
               <div className="col-md-6 mb-3">
-                <label className="form-label">
-                  Email
-                </label>
+                <label className="form-label">Email</label>
 
                 <input
                   type="email"
                   className="form-control"
                   value={email}
-                  onChange={(e) =>
-                    setEmail(e.target.value)
-                  }
+                  onChange={(e) => setEmail(e.target.value)}
                   placeholder="usuario@gym.com"
                 />
               </div>
-
             </div>
 
             <div className="row">
-
               <div className="col-md-6 mb-3">
-                <label className="form-label">
-                  Contraseña
-                </label>
+                <label className="form-label">Contraseña</label>
 
                 <input
                   type="password"
                   className="form-control"
                   value={password}
-                  onChange={(e) =>
-                    setPassword(e.target.value)
-                  }
+                  onChange={(e) => setPassword(e.target.value)}
                   placeholder={
-                    usuarioEditando
-                      ? "Usa Cambiar contraseña"
-                      : "Contraseña"
+                    usuarioEditando ? "Usa Cambiar contraseña" : "Contraseña"
                   }
                   disabled={usuarioEditando !== null}
                 />
               </div>
 
               <div className="col-md-6 mb-3">
-                <label className="form-label">
-                  Rol
-                </label>
+                <label className="form-label">Rol</label>
 
                 <select
                   className="form-select"
                   value={rol}
-                  onChange={(e) =>
-                    setRol(e.target.value)
-                  }
+                  onChange={(e) => setRol(e.target.value)}
                 >
-                  <option value="instructor">
-                    Instructor
-                  </option>
+                  <option value="instructor">Instructor</option>
 
-                  <option value="admin">
-                    Administrador
-                  </option>
+                  <option value="admin">Administrador</option>
                 </select>
               </div>
-
             </div>
 
             <button
@@ -371,7 +333,6 @@ function Configuracion() {
                 Cancelar
               </button>
             )}
-
           </form>
         </div>
       </div>
@@ -383,28 +344,19 @@ function Configuracion() {
       {usuarioPassword && (
         <div className="card mb-4">
           <div className="card-header">
-            <strong>
-              Cambiar contraseña de{" "}
-              {usuarioPassword.nombre}
-            </strong>
+            <strong>Cambiar contraseña de {usuarioPassword.nombre}</strong>
           </div>
 
           <div className="card-body">
-
             <form onSubmit={guardarNuevaPassword}>
-
               <div className="mb-3">
-                <label className="form-label">
-                  Nueva contraseña
-                </label>
+                <label className="form-label">Nueva contraseña</label>
 
                 <input
                   type="password"
                   className="form-control"
                   value={nuevaPassword}
-                  onChange={(e) =>
-                    setNuevaPassword(e.target.value)
-                  }
+                  onChange={(e) => setNuevaPassword(e.target.value)}
                   placeholder="Nueva contraseña"
                   autoComplete="new-password"
                 />
@@ -415,9 +367,7 @@ function Configuracion() {
                 className="btn btn-primary"
                 disabled={cambiandoPassword}
               >
-                {cambiandoPassword
-                  ? "Actualizando..."
-                  : "Guardar contraseña"}
+                {cambiandoPassword ? "Actualizando..." : "Guardar contraseña"}
               </button>
 
               <button
@@ -428,9 +378,7 @@ function Configuracion() {
               >
                 Cancelar
               </button>
-
             </form>
-
           </div>
         </div>
       )}
@@ -439,25 +387,15 @@ function Configuracion() {
       {/* LISTADO */}
       {/* ====================================== */}
 
-      <h4 className="mb-3">
-        Usuarios registrados
-      </h4>
+      <h4 className="mb-3">Usuarios registrados</h4>
 
-      {cargando && (
-        <p>Cargando usuarios...</p>
-      )}
+      {cargando && <p>Cargando usuarios...</p>}
 
-      {error && (
-        <div className="alert alert-danger">
-          {error}
-        </div>
-      )}
+      {error && <div className="alert alert-danger">{error}</div>}
 
       {!cargando && !error && (
         <div className="table-responsive">
-
           <table className="table table-bordered table-striped">
-
             <thead>
               <tr>
                 <th>ID</th>
@@ -469,24 +407,18 @@ function Configuracion() {
             </thead>
 
             <tbody>
-
               {usuarios.map((usuario) => (
-
                 <tr key={usuario.id}>
-
                   <td>{usuario.id}</td>
                   <td>{usuario.nombre}</td>
                   <td>{usuario.email}</td>
                   <td>{usuario.rol}</td>
 
                   <td>
-
                     <button
                       type="button"
                       className="btn btn-warning btn-sm me-2"
-                      onClick={() =>
-                        editarUsuario(usuario)
-                      }
+                      onClick={() => editarUsuario(usuario)}
                     >
                       Editar
                     </button>
@@ -494,39 +426,29 @@ function Configuracion() {
                     <button
                       type="button"
                       className="btn btn-info btn-sm me-2"
-                      onClick={() =>
-                        abrirCambioPassword(usuario)
-                      }
+                      onClick={() => abrirCambioPassword(usuario)}
                     >
                       Cambiar contraseña
                     </button>
 
-                    <button
-                      type="button"
-                      className="btn btn-danger btn-sm"
-                      onClick={() =>
-                        borrarUsuario(
-                          usuario.id,
-                          usuario.nombre
-                        )
-                      }
-                    >
-                      Eliminar
-                    </button>
-
+                    {usuario.id !== usuarioAutenticado.id && (
+                      <button
+                        type="button"
+                        className="btn btn-danger btn-sm"
+                        onClick={() =>
+                          borrarUsuario(usuario.id, usuario.nombre)
+                        }
+                      >
+                        Eliminar
+                      </button>
+                    )}
                   </td>
-
                 </tr>
-
               ))}
-
             </tbody>
-
           </table>
-
         </div>
       )}
-
     </div>
   );
 }

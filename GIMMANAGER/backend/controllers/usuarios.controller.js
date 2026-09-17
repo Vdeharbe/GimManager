@@ -2,16 +2,14 @@ const Usuarios = require("../models/usuarios.model");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
-// Login
-const login = (req, res) => {
-  console.log("=== SOLICITUD LOGIN ===");
-  console.log("Método:", req.method);
-  console.log("URL:", req.url);
-  console.log("Headers Content-Type:", req.headers["content-type"]);
-  console.log("Content-Length:", req.headers["content-length"]);
-  console.log("Body completo:", req.body);
-  console.log("=======================");
+// Roles válidos del sistema
+const rolesPermitidos = ["admin", "instructor"];
 
+// ==========================================
+// LOGIN
+// ==========================================
+
+const login = (req, res) => {
   const { email, password } = req.body || {};
 
   if (!email || !password) {
@@ -37,52 +35,56 @@ const login = (req, res) => {
 
     const usuario = usuarios[0];
 
-    // ==========================================
-    // COMPARAR CONTRASEÑA CON BCRYPT
-    // ==========================================
+    try {
+      // Comparar contraseña con bcrypt
+      const passwordCorrecta = await bcrypt.compare(
+        password,
+        usuario.password
+      );
 
-    const passwordCorrecta = await bcrypt.compare(password, usuario.password);
+      if (!passwordCorrecta) {
+        return res.status(401).json({
+          mensaje: "Email o contraseña incorrectos",
+        });
+      }
 
-    if (!passwordCorrecta) {
-      return res.status(401).json({
-        mensaje: "Email o contraseña incorrectos",
+      // Generar token JWT
+      const token = jwt.sign(
+        {
+          id: usuario.id,
+          email: usuario.email,
+          rol: usuario.rol,
+        },
+        process.env.JWT_SECRET,
+        {
+          expiresIn: "2h",
+        }
+      );
+
+      return res.json({
+        mensaje: "Login correcto",
+        token,
+        usuario: {
+          id: usuario.id,
+          nombre: usuario.nombre,
+          email: usuario.email,
+          rol: usuario.rol,
+        },
+      });
+    } catch (error) {
+      console.error(error);
+
+      return res.status(500).json({
+        mensaje: "Error al procesar el login",
       });
     }
-
-    // ==========================================
-    // GENERAR TOKEN JWT
-    // ==========================================
-
-    const token = jwt.sign(
-      {
-        id: usuario.id,
-        email: usuario.email,
-        rol: usuario.rol,
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "2h",
-      },
-    );
-
-    // ==========================================
-    // RESPUESTA DEL LOGIN
-    // ==========================================
-
-    return res.json({
-      mensaje: "Login correcto",
-
-      token,
-
-      usuario: {
-        id: usuario.id,
-        nombre: usuario.nombre,
-        email: usuario.email,
-        rol: usuario.rol,
-      },
-    });
   });
 };
+
+// ==========================================
+// REGISTRAR USUARIO
+// ==========================================
+
 const registrarUsuario = (req, res) => {
   const { nombre, email, password, rol } = req.body;
 
@@ -90,6 +92,20 @@ const registrarUsuario = (req, res) => {
   if (!nombre || !email || !password || !rol) {
     return res.status(400).json({
       mensaje: "Todos los campos son obligatorios",
+    });
+  }
+
+  // Validar rol
+  if (!rolesPermitidos.includes(rol)) {
+    return res.status(400).json({
+      mensaje: "Rol no válido",
+    });
+  }
+
+  // Validar longitud mínima de contraseña
+  if (password.length < 6) {
+    return res.status(400).json({
+      mensaje: "La contraseña debe tener al menos 6 caracteres",
     });
   }
 
@@ -110,7 +126,7 @@ const registrarUsuario = (req, res) => {
     }
 
     try {
-      // Generar hash
+      // Generar hash de contraseña
       const passwordHash = await bcrypt.hash(password, 10);
 
       const nuevoUsuario = {
@@ -148,6 +164,11 @@ const registrarUsuario = (req, res) => {
     }
   });
 };
+
+// ==========================================
+// OBTENER USUARIOS
+// ==========================================
+
 const obtenerUsuarios = (req, res) => {
   Usuarios.listarUsuarios((err, usuarios) => {
     if (err) {
@@ -162,14 +183,24 @@ const obtenerUsuarios = (req, res) => {
   });
 };
 
+// ==========================================
+// ACTUALIZAR USUARIO
+// ==========================================
+
 const actualizarUsuario = (req, res) => {
   const { id } = req.params;
-
   const { nombre, email, rol } = req.body;
 
   if (!nombre || !email || !rol) {
     return res.status(400).json({
       mensaje: "Nombre, email y rol son obligatorios",
+    });
+  }
+
+  // Validar rol
+  if (!rolesPermitidos.includes(rol)) {
+    return res.status(400).json({
+      mensaje: "Rol no válido",
     });
   }
 
@@ -198,12 +229,23 @@ const actualizarUsuario = (req, res) => {
       return res.json({
         mensaje: "Usuario actualizado correctamente",
       });
-    },
+    }
   );
 };
 
+// ==========================================
+// ELIMINAR USUARIO
+// ==========================================
+
 const eliminarUsuario = (req, res) => {
   const { id } = req.params;
+
+  // Impedir que el usuario autenticado se elimine a sí mismo
+  if (Number(id) === req.usuario.id) {
+    return res.status(400).json({
+      mensaje: "No puedes eliminar tu propio usuario",
+    });
+  }
 
   Usuarios.eliminarUsuario(id, (err, resultado) => {
     if (err) {
@@ -225,6 +267,11 @@ const eliminarUsuario = (req, res) => {
     });
   });
 };
+
+// ==========================================
+// CAMBIAR CONTRASEÑA
+// ==========================================
+
 const cambiarPassword = async (req, res) => {
   const { id } = req.params;
   const { nuevaPassword } = req.body;
@@ -235,28 +282,39 @@ const cambiarPassword = async (req, res) => {
     });
   }
 
+  // Validar longitud mínima
+  if (nuevaPassword.length < 6) {
+    return res.status(400).json({
+      mensaje: "La contraseña debe tener al menos 6 caracteres",
+    });
+  }
+
   try {
     const passwordHash = await bcrypt.hash(nuevaPassword, 10);
 
-    Usuarios.actualizarPassword(id, passwordHash, (err, resultado) => {
-      if (err) {
-        console.error(err);
+    Usuarios.actualizarPassword(
+      id,
+      passwordHash,
+      (err, resultado) => {
+        if (err) {
+          console.error(err);
 
-        return res.status(500).json({
-          mensaje: "Error al actualizar la contraseña",
+          return res.status(500).json({
+            mensaje: "Error al actualizar la contraseña",
+          });
+        }
+
+        if (resultado.affectedRows === 0) {
+          return res.status(404).json({
+            mensaje: "Usuario no encontrado",
+          });
+        }
+
+        return res.json({
+          mensaje: "Contraseña actualizada correctamente",
         });
       }
-
-      if (resultado.affectedRows === 0) {
-        return res.status(404).json({
-          mensaje: "Usuario no encontrado",
-        });
-      }
-
-      return res.json({
-        mensaje: "Contraseña actualizada correctamente",
-      });
-    });
+    );
   } catch (error) {
     console.error(error);
 
@@ -265,6 +323,10 @@ const cambiarPassword = async (req, res) => {
     });
   }
 };
+
+// ==========================================
+// EXPORTAR CONTROLADORES
+// ==========================================
 
 module.exports = {
   login,
