@@ -6,6 +6,7 @@ const cors = require("cors");
 const sociosRoutes = require("./routes/socios.routes");
 const authRoutes = require("./routes/auth.routes");
 const usuariosRoutes = require("./routes/usuarios.routes");
+const profesoresRoutes = require("./routes/profesores.routes");
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.use((req, res, next) => {
 app.use("/api/socios", sociosRoutes);
 app.use("/api/login", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/profesores", profesoresRoutes);
 
 // Ruta de test para verificar body parsing
 app.post("/api/test", (req, res) => {
