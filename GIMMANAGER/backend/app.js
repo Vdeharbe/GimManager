@@ -7,6 +7,7 @@ const sociosRoutes = require("./routes/socios.routes");
 const authRoutes = require("./routes/auth.routes");
 const usuariosRoutes = require("./routes/usuarios.routes");
 const profesoresRoutes = require("./routes/profesores.routes");
+const pagosRoutes = require("./routes/pagos.routes");
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use("/api/socios", sociosRoutes);
 app.use("/api/login", authRoutes);
 app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/profesores", profesoresRoutes);
+app.use("/api/pagos", pagosRoutes);
 
 // Ruta de test para verificar body parsing
 app.post("/api/test", (req, res) => {
