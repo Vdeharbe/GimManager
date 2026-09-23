@@ -3,6 +3,7 @@ const router = express.Router();
 
 const {
   obtenerResumen,
+  obtenerIngresosPorMes,
 } = require("../controllers/reportes.controller");
 
 const {
@@ -17,6 +18,15 @@ router.get(
   "/resumen",
   verificarToken,
   obtenerResumen
+);
+// ==========================================
+// GET - INGRESOS MENSUALES
+// ==========================================
+
+router.get(
+  "/ingresos-mensuales",
+  verificarToken,
+  obtenerIngresosPorMes
 );
 
 // ==========================================

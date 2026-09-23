@@ -24,6 +24,30 @@ const obtenerResumen = (req, res) => {
     res.json(resultados[0]);
   });
 };
+// ==========================================
+// OBTENER INGRESOS POR MES
+// ==========================================
+
+const obtenerIngresosPorMes = (req, res) => {
+  Reportes.obtenerIngresosPorMes(
+    (error, resultados) => {
+
+      if (error) {
+        console.error(
+          "Error al obtener ingresos por mes:",
+          error
+        );
+
+        return res.status(500).json({
+          mensaje:
+            "Error al obtener los ingresos por mes",
+        });
+      }
+
+      res.json(resultados);
+    }
+  );
+};
 
 // ==========================================
 // EXPORTAR
@@ -31,4 +55,5 @@ const obtenerResumen = (req, res) => {
 
 module.exports = {
   obtenerResumen,
+  obtenerIngresosPorMes,
 };

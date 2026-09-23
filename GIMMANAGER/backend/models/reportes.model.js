@@ -34,9 +34,32 @@ const obtenerResumen = (callback) => {
 };
 
 // ==========================================
+// OBTENER INGRESOS POR MES
+// ==========================================
+
+const obtenerIngresosPorMes = (callback) => {
+  const consulta = `
+    SELECT
+      DATE_FORMAT(fecha, '%Y-%m') AS mes,
+      COUNT(*) AS cantidadPagos,
+      COALESCE(SUM(monto), 0) AS total
+    FROM pagos
+    WHERE estado = 'Pagado'
+    GROUP BY DATE_FORMAT(fecha, '%Y-%m')
+    ORDER BY mes ASC
+  `;
+
+  db.query(
+    consulta,
+    callback
+  );
+};
+
+// ==========================================
 // EXPORTAR
 // ==========================================
 
 module.exports = {
   obtenerResumen,
+  obtenerIngresosPorMes,
 };
