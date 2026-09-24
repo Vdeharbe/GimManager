@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import Navbar from "./components/layout/Navbar";
+
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Socios from "./pages/Socios";
@@ -9,22 +10,37 @@ import Pagos from "./pages/Pagos";
 import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
-import RoleRoute from "./context/RoleRoute";
 
-import { AuthProvider } from "./context/AuthContext";
+import RoleRoute from "./context/RoleRoute";
 import ProtectedRoute from "./context/ProtectedRoute";
+import { AuthProvider } from "./context/AuthContext";
 
 function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+
+        {/* ==========================================
+            BARRA DE NAVEGACIÓN
+        ========================================== */}
+
         <Navbar />
 
         <Routes>
-          {/* RUTA PÚBLICA */}
-          <Route path="/" element={<Login />} />
 
-          {/* RUTAS PROTEGIDAS */}
+          {/* ==========================================
+              RUTA PÚBLICA
+          ========================================== */}
+
+          <Route
+            path="/"
+            element={<Login />}
+          />
+
+          {/* ==========================================
+              DASHBOARD
+              ADMIN + INSTRUCTOR
+          ========================================== */}
 
           <Route
             path="/dashboard"
@@ -35,6 +51,17 @@ function App() {
             }
           />
 
+          {/* ==========================================
+              SOCIOS
+              ADMIN + INSTRUCTOR
+
+              Instructor:
+              solo consulta
+
+              Admin:
+              CRUD completo
+          ========================================== */}
+
           <Route
             path="/socios"
             element={
@@ -43,6 +70,17 @@ function App() {
               </ProtectedRoute>
             }
           />
+
+          {/* ==========================================
+              PROFESORES
+              ADMIN + INSTRUCTOR
+
+              Instructor:
+              solo consulta
+
+              Admin:
+              CRUD completo
+          ========================================== */}
 
           <Route
             path="/profesores"
@@ -53,36 +91,64 @@ function App() {
             }
           />
 
+          {/* ==========================================
+              PAGOS
+              SOLO ADMIN
+          ========================================== */}
+
           <Route
             path="/pagos"
             element={
-              <ProtectedRoute>
+              <RoleRoute roles={["admin"]}>
                 <Pagos />
-              </ProtectedRoute>
+              </RoleRoute>
             }
           />
 
-          <Route
-            path="/reportes"
-            element={
-              <ProtectedRoute>
-                <Reportes />
-              </ProtectedRoute>
-            }
-          />
+          {/* ==========================================
+              REPORTES
+
+              Por ahora queda protegido para
+              usuarios autenticados.
+
+              Lo revisaremos después porque contiene
+              información financiera.
+          ========================================== */}
 
           <Route
-  path="/configuracion"
+  path="/reportes"
   element={
     <RoleRoute roles={["admin"]}>
-      <Configuracion />
+      <Reportes />
     </RoleRoute>
   }
 />
 
-          {/* RUTA PARA PÁGINAS INEXISTENTES */}
-          <Route path="*" element={<NotFound />} />
+          {/* ==========================================
+              CONFIGURACIÓN
+              SOLO ADMIN
+          ========================================== */}
+
+          <Route
+            path="/configuracion"
+            element={
+              <RoleRoute roles={["admin"]}>
+                <Configuracion />
+              </RoleRoute>
+            }
+          />
+
+          {/* ==========================================
+              PÁGINA NO ENCONTRADA
+          ========================================== */}
+
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
         </Routes>
+
       </BrowserRouter>
     </AuthProvider>
   );
