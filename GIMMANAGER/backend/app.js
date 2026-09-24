@@ -9,6 +9,7 @@ const usuariosRoutes = require("./routes/usuarios.routes");
 const profesoresRoutes = require("./routes/profesores.routes");
 const pagosRoutes = require("./routes/pagos.routes");
 const reportesRoutes = require("./routes/reportes.routes");
+const configuracionRoutes = require("./routes/configuracion.routes");
 
 const app = express();
 
@@ -44,6 +45,7 @@ app.use("/api/usuarios", usuariosRoutes);
 app.use("/api/profesores", profesoresRoutes);
 app.use("/api/pagos", pagosRoutes);
 app.use("/api/reportes", reportesRoutes);
+app.use("/api/configuracion", configuracionRoutes);
 
 // Ruta de test para verificar body parsing
 app.post("/api/test", (req, res) => {
