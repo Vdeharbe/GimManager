@@ -1,12 +1,11 @@
 const db = require("../config/database");
 
-
 // ==========================================
 // OBTENER RESUMEN GENERAL
+// Admin + Instructor
 // ==========================================
 
 const obtenerResumen = (callback) => {
-
   const consulta = `
     SELECT
       (SELECT COUNT(*)
@@ -17,8 +16,23 @@ const obtenerResumen = (callback) => {
        WHERE estado = 'Activo') AS sociosActivos,
 
       (SELECT COUNT(*)
-       FROM profesores) AS profesores,
+       FROM profesores) AS profesores
+  `;
 
+  db.query(
+    consulta,
+    callback
+  );
+};
+
+// ==========================================
+// OBTENER RESUMEN FINANCIERO
+// Solo Admin
+// ==========================================
+
+const obtenerResumenFinanciero = (callback) => {
+  const consulta = `
+    SELECT
       (SELECT COUNT(*)
        FROM pagos) AS totalPagos,
 
@@ -35,6 +49,7 @@ const obtenerResumen = (callback) => {
 
 // ==========================================
 // OBTENER INGRESOS POR MES
+// Solo Admin
 // ==========================================
 
 const obtenerIngresosPorMes = (callback) => {
@@ -61,5 +76,6 @@ const obtenerIngresosPorMes = (callback) => {
 
 module.exports = {
   obtenerResumen,
+  obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 };
