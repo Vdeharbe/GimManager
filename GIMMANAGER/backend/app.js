@@ -10,12 +10,16 @@ const profesoresRoutes = require("./routes/profesores.routes");
 const pagosRoutes = require("./routes/pagos.routes");
 const reportesRoutes = require("./routes/reportes.routes");
 const configuracionRoutes = require("./routes/configuracion.routes");
+const rutinasRoutes = require("./routes/rutinas.routes");
 
 const app = express();
 
 const PORT = process.env.PORT || 3000;
 
-// Middleware CORS mejorado
+// ==========================================
+// CORS
+// ==========================================
+
 app.use(
   cors({
     origin: "*",
@@ -24,48 +28,89 @@ app.use(
   }),
 );
 
-// Middleware de parseo
-app.use(express.json({ limit: "10mb" }));
-app.use(express.urlencoded({ limit: "10mb", extended: true }));
-app.use(express.raw({ limit: "10mb", type: "application/*" }));
+// ==========================================
+// PARSEO
+// ==========================================
 
-// Middleware de logging global
+app.use(express.json({ limit: "10mb" }));
+
+app.use(
+  express.urlencoded({
+    limit: "10mb",
+    extended: true,
+  }),
+);
+
+app.use(
+  express.raw({
+    limit: "10mb",
+    type: "application/*",
+  }),
+);
+
+// ==========================================
+// LOGGING GLOBAL
+// ==========================================
+
 app.use((req, res, next) => {
   console.log(`\n📨 ${req.method} ${req.path}`);
+
   console.log("Content-Type:", req.headers["content-type"]);
+
   console.log("Body raw:", req.body);
+
   next();
 });
 
-// Rutas
+// ==========================================
+// RUTAS
+// ==========================================
 
 app.use("/api/socios", sociosRoutes);
+
 app.use("/api/login", authRoutes);
+
 app.use("/api/usuarios", usuariosRoutes);
+
 app.use("/api/profesores", profesoresRoutes);
+
 app.use("/api/pagos", pagosRoutes);
+
 app.use("/api/reportes", reportesRoutes);
+
 app.use("/api/configuracion", configuracionRoutes);
 
-// Ruta de test para verificar body parsing
+app.use("/api/rutinas", rutinasRoutes);
+
+// ==========================================
+// TEST BODY
+// ==========================================
+
 app.post("/api/test", (req, res) => {
   res.json({
     mensaje: "Test recibido",
+
     bodyRecibido: req.body,
+
     headers: {
       contentType: req.headers["content-type"],
+
       contentLength: req.headers["content-length"],
     },
   });
 });
 
-// Ruta principal
+// ==========================================
+// RUTA PRINCIPAL
+// ==========================================
 
 app.get("/", (req, res) => {
   res.send("🚀 API Gym Manager funcionando");
 });
 
-// Manejo de errores 404
+// ==========================================
+// 404
+// ==========================================
 
 app.use((req, res) => {
   res.status(404).json({
@@ -73,7 +118,9 @@ app.use((req, res) => {
   });
 });
 
-// Inicia el servidor
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
 
 app.listen(PORT, () => {
   console.log(`Servidor iniciado en http://localhost:${PORT}`);
