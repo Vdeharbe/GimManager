@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 import {
   obtenerRutinas,
@@ -11,8 +12,11 @@ import { obtenerSocios } from "../services/sociosService";
 
 import { useAuth } from "../context/AuthContext";
 
+import GestionEjercicios from "../components/rutinas/GestionEjercicios";
+
 const Rutinas = () => {
   const { usuario } = useAuth();
+  const navigate = useNavigate();
 
   const esAdmin = usuario?.rol === "admin";
 
@@ -27,6 +31,9 @@ const Rutinas = () => {
   const [error, setError] = useState("");
 
   const [rutinaEditando, setRutinaEditando] =
+    useState(null);
+
+  const [rutinaSeleccionada, setRutinaSeleccionada] =
     useState(null);
 
   const [formulario, setFormulario] = useState({
@@ -104,7 +111,7 @@ const Rutinas = () => {
   };
 
   // ==========================================
-  // GUARDAR
+  // GUARDAR RUTINA
   // ==========================================
 
   const handleSubmit = async (e) => {
@@ -150,7 +157,7 @@ const Rutinas = () => {
   };
 
   // ==========================================
-  // EDITAR
+  // EDITAR RUTINA
   // ==========================================
 
   const handleEditar = (rutina) => {
@@ -158,21 +165,30 @@ const Rutinas = () => {
 
     setFormulario({
       socio_id: rutina.socio_id,
+
       nombre: rutina.nombre,
+
       descripcion:
         rutina.descripcion || "",
 
       fecha_inicio:
         rutina.fecha_inicio
-          ? rutina.fecha_inicio.substring(0, 10)
+          ? rutina.fecha_inicio.substring(
+              0,
+              10
+            )
           : "",
 
       fecha_fin:
         rutina.fecha_fin
-          ? rutina.fecha_fin.substring(0, 10)
+          ? rutina.fecha_fin.substring(
+              0,
+              10
+            )
           : "",
 
-      estado: rutina.estado || "Activa",
+      estado:
+        rutina.estado || "Activa",
     });
 
     window.scrollTo({
@@ -182,7 +198,7 @@ const Rutinas = () => {
   };
 
   // ==========================================
-  // ELIMINAR
+  // ELIMINAR RUTINA
   // ==========================================
 
   const handleEliminar = async (id) => {
@@ -199,6 +215,14 @@ const Rutinas = () => {
 
       await eliminarRutina(id);
 
+      // Si estamos viendo los ejercicios
+      // de la rutina eliminada, cerramos
+      // esa sección.
+
+      if (rutinaSeleccionada?.id === id) {
+        setRutinaSeleccionada(null);
+      }
+
       await cargarDatos();
     } catch (error) {
       console.error(
@@ -214,16 +238,55 @@ const Rutinas = () => {
   };
 
   // ==========================================
+  // VER EJERCICIOS
+  // ==========================================
+
+  const handleVerEjercicios = (rutina) => {
+    setRutinaSeleccionada(rutina);
+
+    // Bajamos hasta la sección de ejercicios
+    // después de que React actualice la pantalla.
+
+    setTimeout(() => {
+      window.scrollTo({
+        top: document.body.scrollHeight,
+        behavior: "smooth",
+      });
+    }, 100);
+  };
+
+  // ==========================================
   // RENDER
   // ==========================================
 
   return (
     <div className="container py-4">
+
+      {/* ======================================
+          BOTÓN VOLVER
+          ====================================== */}
+
+      <button
+        type="button"
+        className="btn btn-outline-secondary mb-3"
+        onClick={() =>
+          navigate("/dashboard")
+        }
+      >
+        ← Volver al Dashboard
+      </button>
+
+      {/* ======================================
+          TÍTULO
+          ====================================== */}
+
       <h2 className="mb-4">
         Gestión de Rutinas
       </h2>
 
-      {/* ERROR */}
+      {/* ======================================
+          ERROR
+          ====================================== */}
 
       {error && (
         <div className="alert alert-danger">
@@ -231,10 +294,14 @@ const Rutinas = () => {
         </div>
       )}
 
-      {/* FORMULARIO */}
+      {/* ======================================
+          FORMULARIO DE RUTINAS
+          ====================================== */}
 
       <div className="card shadow-sm mb-4">
+
         <div className="card-body">
+
           <h5 className="card-title mb-3">
             {rutinaEditando
               ? "Editar rutina"
@@ -242,11 +309,13 @@ const Rutinas = () => {
           </h5>
 
           <form onSubmit={handleSubmit}>
+
             <div className="row g-3">
 
               {/* SOCIO */}
 
               <div className="col-md-6">
+
                 <label className="form-label">
                   Socio
                 </label>
@@ -254,10 +323,13 @@ const Rutinas = () => {
                 <select
                   className="form-select"
                   name="socio_id"
-                  value={formulario.socio_id}
+                  value={
+                    formulario.socio_id
+                  }
                   onChange={handleChange}
                   required
                 >
+
                   <option value="">
                     Seleccionar socio
                   </option>
@@ -270,12 +342,15 @@ const Rutinas = () => {
                       {socio.nombre}
                     </option>
                   ))}
+
                 </select>
+
               </div>
 
               {/* NOMBRE */}
 
               <div className="col-md-6">
+
                 <label className="form-label">
                   Nombre de la rutina
                 </label>
@@ -288,11 +363,13 @@ const Rutinas = () => {
                   onChange={handleChange}
                   required
                 />
+
               </div>
 
               {/* DESCRIPCIÓN */}
 
               <div className="col-12">
+
                 <label className="form-label">
                   Descripción
                 </label>
@@ -301,14 +378,18 @@ const Rutinas = () => {
                   className="form-control"
                   name="descripcion"
                   rows="3"
-                  value={formulario.descripcion}
+                  value={
+                    formulario.descripcion
+                  }
                   onChange={handleChange}
                 />
+
               </div>
 
               {/* FECHA INICIO */}
 
               <div className="col-md-4">
+
                 <label className="form-label">
                   Fecha de inicio
                 </label>
@@ -317,15 +398,19 @@ const Rutinas = () => {
                   type="date"
                   className="form-control"
                   name="fecha_inicio"
-                  value={formulario.fecha_inicio}
+                  value={
+                    formulario.fecha_inicio
+                  }
                   onChange={handleChange}
                   required
                 />
+
               </div>
 
               {/* FECHA FIN */}
 
               <div className="col-md-4">
+
                 <label className="form-label">
                   Fecha de fin
                 </label>
@@ -334,14 +419,18 @@ const Rutinas = () => {
                   type="date"
                   className="form-control"
                   name="fecha_fin"
-                  value={formulario.fecha_fin}
+                  value={
+                    formulario.fecha_fin
+                  }
                   onChange={handleChange}
                 />
+
               </div>
 
               {/* ESTADO */}
 
               <div className="col-md-4">
+
                 <label className="form-label">
                   Estado
                 </label>
@@ -352,6 +441,7 @@ const Rutinas = () => {
                   value={formulario.estado}
                   onChange={handleChange}
                 >
+
                   <option value="Activa">
                     Activa
                   </option>
@@ -363,12 +453,15 @@ const Rutinas = () => {
                   <option value="Pausada">
                     Pausada
                   </option>
+
                 </select>
+
               </div>
 
               {/* BOTONES */}
 
               <div className="col-12">
+
                 <button
                   type="submit"
                   className="btn btn-primary me-2"
@@ -389,15 +482,23 @@ const Rutinas = () => {
                     Cancelar
                   </button>
                 )}
+
               </div>
+
             </div>
+
           </form>
+
         </div>
+
       </div>
 
-      {/* LISTADO */}
+      {/* ======================================
+          LISTADO DE RUTINAS
+          ====================================== */}
 
       <div className="card shadow-sm">
+
         <div className="card-body">
 
           <h5 className="card-title mb-3">
@@ -405,16 +506,25 @@ const Rutinas = () => {
           </h5>
 
           {cargando ? (
-            <p>Cargando rutinas...</p>
+
+            <p>
+              Cargando rutinas...
+            </p>
+
           ) : rutinas.length === 0 ? (
+
             <div className="alert alert-info">
               No hay rutinas registradas.
             </div>
+
           ) : (
+
             <div className="table-responsive">
+
               <table className="table table-hover align-middle">
 
                 <thead>
+
                   <tr>
                     <th>Socio</th>
                     <th>Rutina</th>
@@ -423,31 +533,45 @@ const Rutinas = () => {
                     <th>Estado</th>
                     <th>Acciones</th>
                   </tr>
+
                 </thead>
 
                 <tbody>
+
                   {rutinas.map((rutina) => (
+
                     <tr key={rutina.id}>
+
+                      {/* SOCIO */}
 
                       <td>
                         {rutina.socio_nombre}
                       </td>
 
+                      {/* RUTINA */}
+
                       <td>
+
                         <strong>
                           {rutina.nombre}
                         </strong>
 
                         {rutina.descripcion && (
+
                           <div className="small text-muted">
                             {
                               rutina.descripcion
                             }
                           </div>
+
                         )}
+
                       </td>
 
+                      {/* FECHA INICIO */}
+
                       <td>
+
                         {rutina.fecha_inicio
                           ? new Date(
                               rutina.fecha_inicio
@@ -455,9 +579,13 @@ const Rutinas = () => {
                               "es-AR"
                             )
                           : "-"}
+
                       </td>
 
+                      {/* FECHA FIN */}
+
                       <td>
+
                         {rutina.fecha_fin
                           ? new Date(
                               rutina.fecha_fin
@@ -465,14 +593,23 @@ const Rutinas = () => {
                               "es-AR"
                             )
                           : "-"}
+
                       </td>
+
+                      {/* ESTADO */}
 
                       <td>
                         {rutina.estado}
                       </td>
 
+                      {/* ACCIONES */}
+
                       <td>
+
+                        {/* EDITAR */}
+
                         <button
+                          type="button"
                           className="btn btn-sm btn-warning me-2"
                           onClick={() =>
                             handleEditar(
@@ -483,8 +620,26 @@ const Rutinas = () => {
                           Editar
                         </button>
 
+                        {/* EJERCICIOS */}
+
+                        <button
+                          type="button"
+                          className="btn btn-sm btn-info me-2"
+                          onClick={() =>
+                            handleVerEjercicios(
+                              rutina
+                            )
+                          }
+                        >
+                          Ejercicios
+                        </button>
+
+                        {/* ELIMINAR SOLO ADMIN */}
+
                         {esAdmin && (
+
                           <button
+                            type="button"
                             className="btn btn-sm btn-danger"
                             onClick={() =>
                               handleEliminar(
@@ -494,18 +649,76 @@ const Rutinas = () => {
                           >
                             Eliminar
                           </button>
+
                         )}
+
                       </td>
 
                     </tr>
+
                   ))}
+
                 </tbody>
 
               </table>
+
             </div>
+
           )}
+
         </div>
+
       </div>
+
+      {/* ======================================
+          GESTIÓN DE EJERCICIOS
+          ====================================== */}
+
+      {rutinaSeleccionada && (
+
+        <div className="card shadow-sm mt-4">
+
+          <div className="card-body">
+
+            <div
+              className="
+                d-flex
+                justify-content-between
+                align-items-center
+                mb-3
+              "
+            >
+
+              <h5 className="mb-0">
+                Gestión de ejercicios
+              </h5>
+
+              <button
+                type="button"
+                className="btn btn-sm btn-secondary"
+                onClick={() =>
+                  setRutinaSeleccionada(
+                    null
+                  )
+                }
+              >
+                Cerrar
+              </button>
+
+            </div>
+
+            <GestionEjercicios
+              rutina={
+                rutinaSeleccionada
+              }
+            />
+
+          </div>
+
+        </div>
+
+      )}
+
     </div>
   );
 };
