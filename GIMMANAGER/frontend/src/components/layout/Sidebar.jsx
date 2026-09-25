@@ -66,6 +66,20 @@ function Sidebar() {
         </li>
 
         {/* ======================================
+            RUTINAS
+            ADMIN + INSTRUCTOR
+        ====================================== */}
+
+        <li className="nav-item">
+          <Link
+            className="nav-link"
+            to="/rutinas"
+          >
+            📝 Rutinas
+          </Link>
+        </li>
+
+        {/* ======================================
             OPCIONES SOLO PARA ADMIN
         ====================================== */}
 

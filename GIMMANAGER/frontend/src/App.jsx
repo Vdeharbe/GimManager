@@ -10,6 +10,7 @@ import Pagos from "./pages/Pagos";
 import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
+import Rutinas from "./pages/Rutinas";
 
 import RoleRoute from "./context/RoleRoute";
 import ProtectedRoute from "./context/ProtectedRoute";
@@ -19,7 +20,6 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-
         {/* ==========================================
             BARRA DE NAVEGACIÓN
         ========================================== */}
@@ -27,15 +27,11 @@ function App() {
         <Navbar />
 
         <Routes>
-
           {/* ==========================================
               RUTA PÚBLICA
           ========================================== */}
 
-          <Route
-            path="/"
-            element={<Login />}
-          />
+          <Route path="/" element={<Login />} />
 
           {/* ==========================================
               DASHBOARD
@@ -92,6 +88,26 @@ function App() {
           />
 
           {/* ==========================================
+              RUTINAS
+              ADMIN + INSTRUCTOR
+
+              Instructor:
+              ver, crear y editar
+
+              Admin:
+              CRUD completo
+          ========================================== */}
+
+          <Route
+            path="/rutinas"
+            element={
+              <RoleRoute roles={["admin", "instructor"]}>
+                <Rutinas />
+              </RoleRoute>
+            }
+          />
+
+          {/* ==========================================
               PAGOS
               SOLO ADMIN
           ========================================== */}
@@ -107,22 +123,17 @@ function App() {
 
           {/* ==========================================
               REPORTES
-
-              Por ahora queda protegido para
-              usuarios autenticados.
-
-              Lo revisaremos después porque contiene
-              información financiera.
+              SOLO ADMIN
           ========================================== */}
 
           <Route
-  path="/reportes"
-  element={
-    <RoleRoute roles={["admin"]}>
-      <Reportes />
-    </RoleRoute>
-  }
-/>
+            path="/reportes"
+            element={
+              <RoleRoute roles={["admin"]}>
+                <Reportes />
+              </RoleRoute>
+            }
+          />
 
           {/* ==========================================
               CONFIGURACIÓN
@@ -142,13 +153,8 @@ function App() {
               PÁGINA NO ENCONTRADA
           ========================================== */}
 
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
-
+          <Route path="*" element={<NotFound />} />
         </Routes>
-
       </BrowserRouter>
     </AuthProvider>
   );
