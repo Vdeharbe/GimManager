@@ -11,6 +11,7 @@ const pagosRoutes = require("./routes/pagos.routes");
 const reportesRoutes = require("./routes/reportes.routes");
 const configuracionRoutes = require("./routes/configuracion.routes");
 const rutinasRoutes = require("./routes/rutinas.routes");
+const rutinaEjerciciosRoutes = require("./routes/rutinaEjercicios.routes");
 
 const app = express();
 
@@ -81,6 +82,7 @@ app.use("/api/reportes", reportesRoutes);
 app.use("/api/configuracion", configuracionRoutes);
 
 app.use("/api/rutinas", rutinasRoutes);
+app.use("/api/rutina-ejercicios", rutinaEjerciciosRoutes);
 
 // ==========================================
 // TEST BODY
