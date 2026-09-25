@@ -11,6 +11,7 @@ import Configuracion from "./pages/Configuracion";
 import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
 import Rutinas from "./pages/Rutinas";
+import Horarios from "./pages/Horarios";
 
 import RoleRoute from "./context/RoleRoute";
 import ProtectedRoute from "./context/ProtectedRoute";
@@ -20,6 +21,7 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
+
         {/* ==========================================
             BARRA DE NAVEGACIÓN
         ========================================== */}
@@ -27,11 +29,15 @@ function App() {
         <Navbar />
 
         <Routes>
+
           {/* ==========================================
               RUTA PÚBLICA
           ========================================== */}
 
-          <Route path="/" element={<Login />} />
+          <Route
+            path="/"
+            element={<Login />}
+          />
 
           {/* ==========================================
               DASHBOARD
@@ -101,8 +107,38 @@ function App() {
           <Route
             path="/rutinas"
             element={
-              <RoleRoute roles={["admin", "instructor"]}>
+              <RoleRoute
+                roles={[
+                  "admin",
+                  "instructor",
+                ]}
+              >
                 <Rutinas />
+              </RoleRoute>
+            }
+          />
+
+          {/* ==========================================
+              HORARIOS
+              ADMIN + INSTRUCTOR
+
+              Instructor:
+              ver, crear y editar
+
+              Admin:
+              CRUD completo
+          ========================================== */}
+
+          <Route
+            path="/horarios"
+            element={
+              <RoleRoute
+                roles={[
+                  "admin",
+                  "instructor",
+                ]}
+              >
+                <Horarios />
               </RoleRoute>
             }
           />
@@ -153,8 +189,13 @@ function App() {
               PÁGINA NO ENCONTRADA
           ========================================== */}
 
-          <Route path="*" element={<NotFound />} />
+          <Route
+            path="*"
+            element={<NotFound />}
+          />
+
         </Routes>
+
       </BrowserRouter>
     </AuthProvider>
   );

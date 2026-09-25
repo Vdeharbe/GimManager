@@ -80,6 +80,20 @@ function Sidebar() {
         </li>
 
         {/* ======================================
+            HORARIOS
+            ADMIN + INSTRUCTOR
+        ====================================== */}
+
+        <li className="nav-item">
+          <Link
+            className="nav-link"
+            to="/horarios"
+          >
+            🕒 Horarios
+          </Link>
+        </li>
+
+        {/* ======================================
             OPCIONES SOLO PARA ADMIN
         ====================================== */}
 
