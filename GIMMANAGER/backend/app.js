@@ -13,6 +13,9 @@ const configuracionRoutes = require("./routes/configuracion.routes");
 const rutinasRoutes = require("./routes/rutinas.routes");
 const rutinaEjerciciosRoutes = require("./routes/rutinaEjercicios.routes");
 const horariosRoutes = require("./routes/horarios.routes");
+const inscripcionesRoutes = require(
+  "./routes/inscripciones.routes"
+);
 
 const app = express();
 
@@ -85,6 +88,11 @@ app.use("/api/configuracion", configuracionRoutes);
 app.use("/api/rutinas", rutinasRoutes);
 app.use("/api/rutina-ejercicios", rutinaEjerciciosRoutes);
 app.use("/api/horarios", horariosRoutes);
+app.use(
+  "/api/inscripciones",
+  inscripcionesRoutes
+);
+
 
 // ==========================================
 // TEST BODY
