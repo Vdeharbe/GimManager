@@ -92,6 +92,11 @@ function Sidebar() {
             🕒 Horarios
           </Link>
         </li>
+        <li className="nav-item">
+  <Link className="nav-link" to="/inscripciones">
+    🎟️ Inscripciones
+  </Link>
+</li>
 
         {/* ======================================
             OPCIONES SOLO PARA ADMIN

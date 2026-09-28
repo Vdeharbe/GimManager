@@ -12,6 +12,7 @@ import NotFound from "./pages/NotFound";
 import Reportes from "./pages/Reportes";
 import Rutinas from "./pages/Rutinas";
 import Horarios from "./pages/Horarios";
+import Inscripciones from "./pages/Inscripciones";
 
 import RoleRoute from "./context/RoleRoute";
 import ProtectedRoute from "./context/ProtectedRoute";
@@ -21,7 +22,6 @@ function App() {
   return (
     <AuthProvider>
       <BrowserRouter>
-
         {/* ==========================================
             BARRA DE NAVEGACIÓN
         ========================================== */}
@@ -29,15 +29,11 @@ function App() {
         <Navbar />
 
         <Routes>
-
           {/* ==========================================
               RUTA PÚBLICA
           ========================================== */}
 
-          <Route
-            path="/"
-            element={<Login />}
-          />
+          <Route path="/" element={<Login />} />
 
           {/* ==========================================
               DASHBOARD
@@ -107,12 +103,7 @@ function App() {
           <Route
             path="/rutinas"
             element={
-              <RoleRoute
-                roles={[
-                  "admin",
-                  "instructor",
-                ]}
-              >
+              <RoleRoute roles={["admin", "instructor"]}>
                 <Rutinas />
               </RoleRoute>
             }
@@ -132,12 +123,7 @@ function App() {
           <Route
             path="/horarios"
             element={
-              <RoleRoute
-                roles={[
-                  "admin",
-                  "instructor",
-                ]}
-              >
+              <RoleRoute roles={["admin", "instructor"]}>
                 <Horarios />
               </RoleRoute>
             }
@@ -184,18 +170,21 @@ function App() {
               </RoleRoute>
             }
           />
+          <Route
+            path="/inscripciones"
+            element={
+              <RoleRoute roles={["admin", "instructor"]}>
+                <Inscripciones />
+              </RoleRoute>
+            }
+          />
 
           {/* ==========================================
               PÁGINA NO ENCONTRADA
           ========================================== */}
 
-          <Route
-            path="*"
-            element={<NotFound />}
-          />
-
+          <Route path="*" element={<NotFound />} />
         </Routes>
-
       </BrowserRouter>
     </AuthProvider>
   );
