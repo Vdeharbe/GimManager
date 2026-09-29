@@ -20,34 +20,39 @@ function Socios() {
 
   const { usuario } = useAuth();
 
-  const esAdmin =
-    usuario?.rol === "admin";
+  const esAdmin = usuario?.rol === "admin";
 
   // ==========================================
   // ESTADOS
   // ==========================================
 
-  const [socios, setSocios] =
-    useState([]);
+  const [socios, setSocios] = useState([]);
 
-  const [cargando, setCargando] =
-    useState(true);
+  const [cargando, setCargando] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
-  const [
-    socioAEditar,
-    setSocioAEditar,
-  ] = useState(null);
+  const [socioAEditar, setSocioAEditar] = useState(null);
 
-  const [busqueda, setBusqueda] =
-    useState("");
+  // ==========================================
+  // BÚSQUEDA Y FILTRO
+  // ==========================================
 
-  const [
-    filtroEstado,
-    setFiltroEstado,
-  ] = useState("Todos");
+  const [busqueda, setBusqueda] = useState("");
+
+  const [filtroEstado, setFiltroEstado] = useState("Todos");
+
+  // ==========================================
+  // PAGINACIÓN
+  // ==========================================
+
+  const [pagina, setPagina] = useState(1);
+
+  const [limite] = useState(5);
+
+  const [total, setTotal] = useState(0);
+
+  const [totalPaginas, setTotalPaginas] = useState(0);
 
   // ==========================================
   // CARGAR SOCIOS
@@ -58,30 +63,34 @@ function Socios() {
       setCargando(true);
       setError("");
 
-      const datos =
-        await obtenerSocios();
+      const datos = await obtenerSocios({
+        buscar: busqueda,
+        estado: filtroEstado === "Todos" ? "" : filtroEstado,
+        page: pagina,
+        limit: limite,
+      });
 
-      setSocios(datos);
+      setSocios(Array.isArray(datos.socios) ? datos.socios : []);
 
+      setTotal(datos.paginacion?.total || 0);
+
+      setTotalPaginas(datos.paginacion?.totalPaginas || 0);
     } catch (error) {
       console.error(error);
 
-      setError(
-        "No se pudieron cargar los socios."
-      );
-
+      setError("No se pudieron cargar los socios.");
     } finally {
       setCargando(false);
     }
   };
 
   // ==========================================
-  // CARGAR AL ABRIR
+  // CARGAR AL ABRIR Y AL CAMBIAR FILTROS
   // ==========================================
 
   useEffect(() => {
     cargarSocios();
-  }, []);
+  }, [busqueda, filtroEstado, pagina]);
 
   // ==========================================
   // AGREGAR SOCIO
@@ -92,11 +101,11 @@ function Socios() {
     try {
       await crearSocio(socio);
 
-      await cargarSocios();
+      setPagina(1);
 
+      await cargarSocios();
     } catch (error) {
       console.error(error);
-
       throw error;
     }
   };
@@ -108,18 +117,13 @@ function Socios() {
 
   const editarSocio = async (socio) => {
     try {
-      await actualizarSocio(
-        socio.id,
-        socio
-      );
+      await actualizarSocio(socio.id, socio);
 
       setSocioAEditar(null);
 
       await cargarSocios();
-
     } catch (error) {
       console.error(error);
-
       throw error;
     }
   };
@@ -130,10 +134,7 @@ function Socios() {
   // ==========================================
 
   const handleEliminar = async (id) => {
-    const confirmar =
-      window.confirm(
-        "¿Seguro que querés eliminar este socio?"
-      );
+    const confirmar = window.confirm("¿Seguro que querés eliminar este socio?");
 
     if (!confirmar) {
       return;
@@ -143,89 +144,56 @@ function Socios() {
       await eliminarSocio(id);
 
       await cargarSocios();
-
     } catch (error) {
       console.error(error);
 
-      alert(
-        "No se pudo eliminar el socio."
-      );
+      alert("No se pudo eliminar el socio.");
     }
   };
 
   // ==========================================
-  // BUSCAR Y FILTRAR
-  // Admin + Instructor
+  // CAMBIAR BÚSQUEDA
   // ==========================================
 
-  const sociosFiltrados =
-    socios.filter((socio) => {
+  const handleBusqueda = (e) => {
+    setBusqueda(e.target.value);
 
-      const texto =
-        busqueda
-          .toLowerCase()
-          .trim();
-
-      const nombre =
-        (socio.nombre || "")
-          .toLowerCase();
-
-      const email =
-        (socio.email || "")
-          .toLowerCase();
-
-      const coincideBusqueda =
-        nombre.includes(texto) ||
-        email.includes(texto);
-
-      const coincideEstado =
-        filtroEstado === "Todos" ||
-        socio.estado === filtroEstado;
-
-      return (
-        coincideBusqueda &&
-        coincideEstado
-      );
-    });
+    // Si cambia la búsqueda,
+    // volvemos a la página 1.
+    setPagina(1);
+  };
 
   // ==========================================
-  // CARGANDO
+  // CAMBIAR FILTRO
   // ==========================================
 
-  if (cargando) {
-    return (
-      <div className="container mt-4">
+  const handleFiltroEstado = (e) => {
+    setFiltroEstado(e.target.value);
 
-        <h3>
-          Cargando socios...
-        </h3>
-
-      </div>
-    );
-  }
+    // Si cambia el filtro,
+    // volvemos a la página 1.
+    setPagina(1);
+  };
 
   // ==========================================
-  // ERROR
+  // PÁGINA ANTERIOR
   // ==========================================
 
-  if (error) {
-    return (
-      <div className="container mt-4">
+  const paginaAnterior = () => {
+    if (pagina > 1) {
+      setPagina((paginaActual) => paginaActual - 1);
+    }
+  };
 
-        <div className="alert alert-danger">
-          {error}
-        </div>
+  // ==========================================
+  // PÁGINA SIGUIENTE
+  // ==========================================
 
-        <button
-          className="btn btn-primary"
-          onClick={cargarSocios}
-        >
-          Intentar nuevamente
-        </button>
-
-      </div>
-    );
-  }
+  const paginaSiguiente = () => {
+    if (pagina < totalPaginas) {
+      setPagina((paginaActual) => paginaActual + 1);
+    }
+  };
 
   // ==========================================
   // PANTALLA PRINCIPAL
@@ -233,14 +201,11 @@ function Socios() {
 
   return (
     <div className="container mt-4">
-
       {/* VOLVER */}
 
       <button
         className="btn btn-outline-secondary mb-3"
-        onClick={() =>
-          navigate("/dashboard")
-        }
+        onClick={() => navigate("/dashboard")}
       >
         ← Volver al Dashboard
       </button>
@@ -250,18 +215,15 @@ function Socios() {
       ====================================== */}
 
       <div className="d-flex justify-content-between align-items-center mb-3">
-
-        <h2>
-          👥 Gestión de Socios
-        </h2>
+        <h2>👥 Gestión de Socios</h2>
 
         <button
           className="btn btn-primary"
           onClick={cargarSocios}
+          disabled={cargando}
         >
           🔄 Actualizar
         </button>
-
       </div>
 
       {/* ======================================
@@ -270,8 +232,7 @@ function Socios() {
 
       {!esAdmin && (
         <div className="alert alert-info">
-          Podés consultar, buscar y filtrar
-          los socios registrados.
+          Podés consultar, buscar y filtrar los socios registrados.
         </div>
       )}
 
@@ -282,14 +243,8 @@ function Socios() {
 
       {esAdmin && (
         <FormularioSocio
-          agregarSocio={
-            socioAEditar
-              ? editarSocio
-              : agregarSocio
-          }
-          socioAEditar={
-            socioAEditar
-          }
+          agregarSocio={socioAEditar ? editarSocio : agregarSocio}
+          socioAEditar={socioAEditar}
         />
       )}
 
@@ -298,221 +253,176 @@ function Socios() {
       ====================================== */}
 
       <div className="card mb-4">
-
         <div className="card-body">
-
           <div className="row">
-
             {/* BUSCADOR */}
 
             <div className="col-md-8">
-
-              <label className="form-label">
-                🔍 Buscar socio
-              </label>
+              <label className="form-label">🔍 Buscar socio</label>
 
               <input
                 type="text"
                 className="form-control"
                 placeholder="Buscar por nombre o email..."
                 value={busqueda}
-                onChange={(e) =>
-                  setBusqueda(
-                    e.target.value
-                  )
-                }
+                onChange={handleBusqueda}
               />
-
             </div>
 
             {/* FILTRO */}
 
             <div className="col-md-4">
-
-              <label className="form-label">
-                📄 Estado
-              </label>
+              <label className="form-label">📄 Estado</label>
 
               <select
                 className="form-select"
                 value={filtroEstado}
-                onChange={(e) =>
-                  setFiltroEstado(
-                    e.target.value
-                  )
-                }
+                onChange={handleFiltroEstado}
               >
+                <option value="Todos">Todos</option>
 
-                <option value="Todos">
-                  Todos
-                </option>
+                <option value="Activo">Activos</option>
 
-                <option value="Activo">
-                  Activos
-                </option>
-
-                <option value="Inactivo">
-                  Inactivos
-                </option>
-
+                <option value="Inactivo">Inactivos</option>
               </select>
-
             </div>
-
           </div>
-
         </div>
-
       </div>
+
+      {/* ======================================
+          CARGANDO
+      ====================================== */}
+
+      {cargando && <div className="alert alert-info">Cargando socios...</div>}
+
+      {/* ======================================
+          ERROR
+      ====================================== */}
+
+      {error && <div className="alert alert-danger">{error}</div>}
 
       {/* ======================================
           CONTADOR
       ====================================== */}
 
-      <div className="mb-2">
-
-        <strong>
-          Mostrando{" "}
-          {sociosFiltrados.length}
-          {" "}de{" "}
-          {socios.length} socios
-        </strong>
-
-      </div>
+      {!cargando && !error && (
+        <div className="mb-2">
+          <strong>
+            Mostrando {socios.length} de {total} socios
+          </strong>
+        </div>
+      )}
 
       {/* ======================================
           TABLA
       ====================================== */}
 
-      <div className="table-responsive">
-
-        <table className="table table-striped table-hover">
-
-          <thead className="table-dark">
-
-            <tr>
-
-              <th>ID</th>
-
-              <th>Nombre</th>
-
-              <th>Email</th>
-
-              <th>Plan</th>
-
-              <th>Estado</th>
-
-              {/* ACCIONES SOLO ADMIN */}
-
-              {esAdmin && (
-                <th>Acciones</th>
-              )}
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {sociosFiltrados.length ===
-            0 ? (
-
+      {!cargando && !error && (
+        <div className="table-responsive">
+          <table className="table table-striped table-hover">
+            <thead className="table-dark">
               <tr>
+                <th>ID</th>
 
-                <td
-                  colSpan={
-                    esAdmin ? "6" : "5"
-                  }
-                  className="text-center"
-                >
-                  No se encontraron socios.
-                </td>
+                <th>Nombre</th>
 
+                <th>Email</th>
+
+                <th>Plan</th>
+
+                <th>Estado</th>
+
+                {/* ACCIONES SOLO ADMIN */}
+
+                {esAdmin && <th>Acciones</th>}
               </tr>
+            </thead>
 
-            ) : (
-
-              sociosFiltrados.map(
-                (socio) => (
-
+            <tbody>
+              {socios.length === 0 ? (
+                <tr>
+                  <td colSpan={esAdmin ? 6 : 5} className="text-center">
+                    No se encontraron socios.
+                  </td>
+                </tr>
+              ) : (
+                socios.map((socio) => (
                   <tr key={socio.id}>
+                    <td>{socio.id}</td>
+
+                    <td>{socio.nombre}</td>
+
+                    <td>{socio.email}</td>
+
+                    <td>{socio.plan}</td>
 
                     <td>
-                      {socio.id}
-                    </td>
-
-                    <td>
-                      {socio.nombre}
-                    </td>
-
-                    <td>
-                      {socio.email}
-                    </td>
-
-                    <td>
-                      {socio.plan}
-                    </td>
-
-                    <td>
-
                       <span
                         className={
-                          socio.estado ===
-                          "Activo"
+                          socio.estado === "Activo"
                             ? "badge bg-success"
                             : "badge bg-danger"
                         }
                       >
                         {socio.estado}
                       </span>
-
                     </td>
 
-                    {/* =========================
-                        ACCIONES SOLO ADMIN
-                    ========================= */}
+                    {/* ACCIONES SOLO ADMIN */}
 
                     {esAdmin && (
                       <td>
-
                         <button
                           className="btn btn-warning btn-sm me-2"
-                          onClick={() =>
-                            setSocioAEditar(
-                              socio
-                            )
-                          }
+                          onClick={() => setSocioAEditar(socio)}
                         >
                           ✏️ Editar
                         </button>
 
                         <button
                           className="btn btn-danger btn-sm"
-                          onClick={() =>
-                            handleEliminar(
-                              socio.id
-                            )
-                          }
+                          onClick={() => handleEliminar(socio.id)}
                         >
                           🗑️ Eliminar
                         </button>
-
                       </td>
                     )}
-
                   </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
 
-                )
-              )
+      {/* ======================================
+          PAGINACIÓN
+      ====================================== */}
 
-            )}
+      {!cargando && !error && totalPaginas > 0 && (
+        <div className="d-flex justify-content-center align-items-center gap-3 mt-3 mb-4">
+          <button
+            className="btn btn-outline-primary"
+            onClick={paginaAnterior}
+            disabled={pagina === 1}
+          >
+            ← Anterior
+          </button>
 
-          </tbody>
+          <strong>
+            Página {pagina} de {totalPaginas}
+          </strong>
 
-        </table>
-
-      </div>
-
+          <button
+            className="btn btn-outline-primary"
+            onClick={paginaSiguiente}
+            disabled={pagina >= totalPaginas}
+          >
+            Siguiente →
+          </button>
+        </div>
+      )}
     </div>
   );
 }

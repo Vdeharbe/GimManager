@@ -1,54 +1,214 @@
 const db = require("../config/database");
 
-// Obtener todos
-const obtenerSocios = (callback) => {
+// ==========================================
+// OBTENER / BUSCAR / FILTRAR / PAGINAR SOCIOS
+// ==========================================
+
+const obtenerSocios = (
+    buscar,
+    estado,
+    limit,
+    offset,
+    callback
+) => {
+    let consulta = `
+        SELECT *
+        FROM socios
+        WHERE 1 = 1
+    `;
+
+    const parametros = [];
+
+    // ======================================
+    // BÚSQUEDA POR NOMBRE O EMAIL
+    // ======================================
+
+    if (buscar) {
+        consulta += `
+            AND (
+                nombre LIKE ?
+                OR email LIKE ?
+            )
+        `;
+
+        const textoBusqueda = `%${buscar}%`;
+
+        parametros.push(
+            textoBusqueda,
+            textoBusqueda
+        );
+    }
+
+    // ======================================
+    // FILTRO POR ESTADO
+    // ======================================
+
+    if (estado) {
+        consulta += `
+            AND estado = ?
+        `;
+
+        parametros.push(estado);
+    }
+
+    // ======================================
+    // ORDENAR
+    // ======================================
+
+    consulta += `
+        ORDER BY nombre ASC
+    `;
+
+    // ======================================
+    // PAGINACIÓN
+    // Solo se aplica si recibimos limit y offset
+    // ======================================
+
+    if (
+        Number.isInteger(limit) &&
+        Number.isInteger(offset)
+    ) {
+        consulta += `
+            LIMIT ?
+            OFFSET ?
+        `;
+
+        parametros.push(
+            limit,
+            offset
+        );
+    }
+
     db.query(
-        "SELECT * FROM socios",
+        consulta,
+        parametros,
         callback
     );
 };
 
-// Obtener por ID
-const obtenerSocioPorId = (id, callback) => {
+// ==========================================
+// CONTAR SOCIOS
+// ==========================================
+
+const contarSocios = (
+    buscar,
+    estado,
+    callback
+) => {
+    let consulta = `
+        SELECT COUNT(*) AS total
+        FROM socios
+        WHERE 1 = 1
+    `;
+
+    const parametros = [];
+
+    // ======================================
+    // BÚSQUEDA POR NOMBRE O EMAIL
+    // ======================================
+
+    if (buscar) {
+        consulta += `
+            AND (
+                nombre LIKE ?
+                OR email LIKE ?
+            )
+        `;
+
+        const textoBusqueda = `%${buscar}%`;
+
+        parametros.push(
+            textoBusqueda,
+            textoBusqueda
+        );
+    }
+
+    // ======================================
+    // FILTRO POR ESTADO
+    // ======================================
+
+    if (estado) {
+        consulta += `
+            AND estado = ?
+        `;
+
+        parametros.push(estado);
+    }
+
     db.query(
-        "SELECT * FROM socios WHERE id = ?",
+        consulta,
+        parametros,
+        callback
+    );
+};
+
+// ==========================================
+// OBTENER SOCIO POR ID
+// ==========================================
+
+const obtenerSocioPorId = (
+    id,
+    callback
+) => {
+    db.query(
+        `
+        SELECT *
+        FROM socios
+        WHERE id = ?
+        `,
         [id],
         callback
     );
 };
 
-// Crear
-const crearSocio = (socio, callback) => {
+// ==========================================
+// CREAR SOCIO
+// ==========================================
 
+const crearSocio = (
+    socio,
+    callback
+) => {
     db.query(
-
-        "INSERT INTO socios(nombre,email,plan,estado) VALUES(?,?,?,?)",
-
+        `
+        INSERT INTO socios
+        (
+            nombre,
+            email,
+            plan,
+            estado
+        )
+        VALUES (?, ?, ?, ?)
+        `,
         [
             socio.nombre,
             socio.email,
             socio.plan,
             socio.estado
         ],
-
         callback
-
     );
-
 };
 
-// Actualizar
-const actualizarSocio = (id, socio, callback) => {
+// ==========================================
+// ACTUALIZAR SOCIO
+// ==========================================
 
+const actualizarSocio = (
+    id,
+    socio,
+    callback
+) => {
     db.query(
-
-        `UPDATE socios
-         SET nombre=?,
-             email=?,
-             plan=?,
-             estado=?
-         WHERE id=?`,
-
+        `
+        UPDATE socios
+        SET
+            nombre = ?,
+            email = ?,
+            plan = ?,
+            estado = ?
+        WHERE id = ?
+        `,
         [
             socio.nombre,
             socio.email,
@@ -56,38 +216,37 @@ const actualizarSocio = (id, socio, callback) => {
             socio.estado,
             id
         ],
-
         callback
-
     );
-
 };
 
-// Eliminar
-const eliminarSocio = (id, callback) => {
+// ==========================================
+// ELIMINAR SOCIO
+// ==========================================
 
+const eliminarSocio = (
+    id,
+    callback
+) => {
     db.query(
-
-        "DELETE FROM socios WHERE id=?",
-
+        `
+        DELETE FROM socios
+        WHERE id = ?
+        `,
         [id],
-
         callback
-
     );
-
 };
+
+// ==========================================
+// EXPORTAR FUNCIONES
+// ==========================================
 
 module.exports = {
-
     obtenerSocios,
-
+    contarSocios,
     obtenerSocioPorId,
-
     crearSocio,
-
     actualizarSocio,
-
     eliminarSocio
-
 };
