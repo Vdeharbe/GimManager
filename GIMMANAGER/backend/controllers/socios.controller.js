@@ -1,97 +1,298 @@
 const Socios = require("../models/socios.model");
 
 // ==========================================
-// LISTAR / BUSCAR / FILTRAR / PAGINAR SOCIOS
+// CONFIGURACIÓN DE VALIDACIONES
+// ==========================================
+
+const PLANES_PERMITIDOS = [
+  "Premium",
+  "Básico",
+];
+
+const ESTADOS_PERMITIDOS = [
+  "Activo",
+  "Inactivo",
+];
+
+// ==========================================
+// VALIDAR DATOS DE UN SOCIO
+// ==========================================
+
+const validarDatosSocio = (datos) => {
+  const {
+    nombre,
+    email,
+    plan,
+    estado,
+  } = datos;
+
+  // CAMPOS OBLIGATORIOS
+  if (
+    !nombre ||
+    !email ||
+    !plan ||
+    !estado
+  ) {
+    return {
+      valido: false,
+      mensaje:
+        "Nombre, email, plan y estado son obligatorios",
+    };
+  }
+
+  // TIPOS DE DATOS
+  if (
+    typeof nombre !== "string" ||
+    typeof email !== "string" ||
+    typeof plan !== "string" ||
+    typeof estado !== "string"
+  ) {
+    return {
+      valido: false,
+      mensaje:
+        "Los datos del socio no son válidos",
+    };
+  }
+
+  // LIMPIAR DATOS
+  const nombreLimpio =
+    nombre.trim();
+
+  const emailLimpio =
+    email.trim().toLowerCase();
+
+  // VALIDAR NOMBRE
+  if (nombreLimpio.length < 2) {
+    return {
+      valido: false,
+      mensaje:
+        "El nombre debe tener al menos 2 caracteres",
+    };
+  }
+
+  // VALIDAR EMAIL
+  const regexEmail =
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  if (!regexEmail.test(emailLimpio)) {
+    return {
+      valido: false,
+      mensaje:
+        "El email no tiene un formato válido",
+    };
+  }
+
+  // VALIDAR PLAN
+  if (
+    !PLANES_PERMITIDOS.includes(plan)
+  ) {
+    return {
+      valido: false,
+      mensaje:
+        "El plan no es válido",
+    };
+  }
+
+  // VALIDAR ESTADO
+  if (
+    !ESTADOS_PERMITIDOS.includes(estado)
+  ) {
+    return {
+      valido: false,
+      mensaje:
+        "El estado no es válido",
+    };
+  }
+
+  // DATOS CORRECTOS
+  return {
+    valido: true,
+
+    datos: {
+      nombre: nombreLimpio,
+      email: emailLimpio,
+      plan,
+      estado,
+    },
+  };
+};
+
+// ==========================================
+// VALIDAR ID
+// ==========================================
+
+const obtenerIdValido = (id) => {
+  const idNumerico = Number(id);
+
+  if (
+    !Number.isInteger(idNumerico) ||
+    idNumerico <= 0
+  ) {
+    return null;
+  }
+
+  return idNumerico;
+};
+
+// ==========================================
+// LISTAR / BUSCAR / FILTRAR / PAGINAR
 // ==========================================
 
 const listarSocios = (req, res) => {
-  const { buscar = "", estado = "", page, limit } = req.query;
+  const {
+    buscar = "",
+    estado = "",
+    page,
+    limit,
+  } = req.query;
 
-  // ======================================
-  // SIN PAGINACIÓN
-  // ======================================
-  // Si no recibimos page y limit,
-  // devolvemos todos los socios.
-  //
-  // Esto mantiene funcionando otros módulos
-  // que utilizan GET /api/socios para cargar
-  // listas de socios.
-  // ======================================
+  // VALIDAR ESTADO
+  if (
+    estado &&
+    !ESTADOS_PERMITIDOS.includes(estado)
+  ) {
+    return res.status(400).json({
+      mensaje:
+        "El estado debe ser Activo o Inactivo",
+    });
+  }
 
-  if (!page && !limit) {
-    return Socios.obtenerSocios(buscar, estado, null, null, (err, result) => {
-      if (err) {
-        console.error(err);
+  // VALIDAR BÚSQUEDA
+  if (typeof buscar !== "string") {
+    return res.status(400).json({
+      mensaje:
+        "El parámetro buscar no es válido",
+    });
+  }
 
-        return res.status(500).json({
-          mensaje: "Error al obtener socios",
-          error: err,
-        });
-      }
+  const buscarLimpio = buscar.trim();
 
-      res.json({
-        mensaje: "Socios obtenidos correctamente",
-        socios: result,
-      });
+  if (buscarLimpio.length > 100) {
+    return res.status(400).json({
+      mensaje:
+        "La búsqueda no puede superar los 100 caracteres",
     });
   }
 
   // ======================================
-  // CON PAGINACIÓN
+  // SIN PAGINACIÓN
   // ======================================
 
-  const pagina = Math.max(parseInt(page, 10) || 1, 1);
+  if (!page && !limit) {
+    return Socios.obtenerSocios(
+      buscarLimpio,
+      estado,
+      null,
+      null,
+      (err, result) => {
+        if (err) {
+          console.error(err);
 
-  const limite = Math.min(Math.max(parseInt(limit, 10) || 10, 1), 100);
+          return res.status(500).json({
+            mensaje:
+              "Error al obtener socios",
+          });
+        }
 
-  const offset = (pagina - 1) * limite;
+        return res.json({
+          mensaje:
+            "Socios obtenidos correctamente",
+          socios: result,
+        });
+      }
+    );
+  }
 
   // ======================================
-  // CONTAR RESULTADOS
+  // VALIDAR PAGINACIÓN
   // ======================================
 
-  Socios.contarSocios(buscar, estado, (err, resultadoConteo) => {
-    if (err) {
-      console.error(err);
+  const pagina = Number(page || 1);
+  const limite = Number(limit || 10);
 
-      return res.status(500).json({
-        mensaje: "Error al contar socios",
-        error: err,
-      });
-    }
+  if (
+    !Number.isInteger(pagina) ||
+    pagina <= 0
+  ) {
+    return res.status(400).json({
+      mensaje:
+        "El parámetro page debe ser un número entero mayor a 0",
+    });
+  }
 
-    const total = Number(resultadoConteo[0].total);
+  if (
+    !Number.isInteger(limite) ||
+    limite <= 0 ||
+    limite > 100
+  ) {
+    return res.status(400).json({
+      mensaje:
+        "El parámetro limit debe ser un número entero entre 1 y 100",
+    });
+  }
 
-    const totalPaginas = Math.ceil(total / limite);
+  const offset =
+    (pagina - 1) * limite;
 
-    // ==================================
-    // OBTENER LA PÁGINA SOLICITADA
-    // ==================================
+  // ======================================
+  // CONTAR REGISTROS
+  // ======================================
 
-    Socios.obtenerSocios(buscar, estado, limite, offset, (err, result) => {
+  Socios.contarSocios(
+    buscarLimpio,
+    estado,
+    (err, resultadoConteo) => {
       if (err) {
         console.error(err);
 
         return res.status(500).json({
-          mensaje: "Error al obtener socios",
-          error: err,
+          mensaje:
+            "Error al contar socios",
         });
       }
 
-      res.json({
-        mensaje: "Socios obtenidos correctamente",
+      const total =
+        Number(resultadoConteo[0].total);
 
-        socios: result,
+      const totalPaginas =
+        Math.ceil(total / limite);
 
-        paginacion: {
-          pagina,
-          limite,
-          total,
-          totalPaginas,
-        },
-      });
-    });
-  });
+      // ==================================
+      // OBTENER PÁGINA
+      // ==================================
+
+      Socios.obtenerSocios(
+        buscarLimpio,
+        estado,
+        limite,
+        offset,
+        (err, result) => {
+          if (err) {
+            console.error(err);
+
+            return res.status(500).json({
+              mensaje:
+                "Error al obtener socios",
+            });
+          }
+
+          return res.json({
+            mensaje:
+              "Socios obtenidos correctamente",
+
+            socios: result,
+
+            paginacion: {
+              pagina,
+              limite,
+              total,
+              totalPaginas,
+            },
+          });
+        }
+      );
+    }
+  );
 };
 
 // ==========================================
@@ -99,35 +300,42 @@ const listarSocios = (req, res) => {
 // ==========================================
 
 const obtenerSocio = (req, res) => {
-  const { id } = req.params;
+  const id =
+    obtenerIdValido(req.params.id);
 
-  if (!id) {
+  if (id === null) {
     return res.status(400).json({
-      mensaje: "El ID del socio es obligatorio",
+      mensaje:
+        "El ID del socio no es válido",
     });
   }
 
-  Socios.obtenerSocioPorId(id, (err, result) => {
-    if (err) {
-      console.error(err);
+  Socios.obtenerSocioPorId(
+    id,
+    (err, result) => {
+      if (err) {
+        console.error(err);
 
-      return res.status(500).json({
-        mensaje: "Error al obtener el socio",
-        error: err,
+        return res.status(500).json({
+          mensaje:
+            "Error al obtener el socio",
+        });
+      }
+
+      if (result.length === 0) {
+        return res.status(404).json({
+          mensaje:
+            "Socio no encontrado",
+        });
+      }
+
+      return res.json({
+        mensaje:
+          "Socio obtenido correctamente",
+        socio: result[0],
       });
     }
-
-    if (result.length === 0) {
-      return res.status(404).json({
-        mensaje: "Socio no encontrado",
-      });
-    }
-
-    res.json({
-      mensaje: "Socio obtenido correctamente",
-      socio: result[0],
-    });
-  });
+  );
 };
 
 // ==========================================
@@ -135,36 +343,44 @@ const obtenerSocio = (req, res) => {
 // ==========================================
 
 const crearSocio = (req, res) => {
-  const { nombre, email, plan, estado } = req.body;
+  const validacion =
+    validarDatosSocio(req.body);
 
-  if (!nombre || !email || !plan || !estado) {
+  if (!validacion.valido) {
     return res.status(400).json({
-      mensaje: "Nombre, email, plan y estado son obligatorios",
+      mensaje: validacion.mensaje,
     });
   }
 
-  const nuevoSocio = {
-    nombre,
-    email,
-    plan,
-    estado,
-  };
+  const nuevoSocio =
+    validacion.datos;
 
-  Socios.crearSocio(nuevoSocio, (err, result) => {
-    if (err) {
-      console.error(err);
+  Socios.crearSocio(
+    nuevoSocio,
+    (err, result) => {
+      if (err) {
+        console.error(err);
 
-      return res.status(500).json({
-        mensaje: "Error al crear el socio",
-        error: err,
+        if (err.code === "ER_DUP_ENTRY") {
+          return res.status(409).json({
+            mensaje:
+              "Ya existe un socio con ese email",
+          });
+        }
+
+        return res.status(500).json({
+          mensaje:
+            "Error al crear el socio",
+        });
+      }
+
+      return res.status(201).json({
+        mensaje:
+          "Socio creado correctamente",
+        id: result.insertId,
       });
     }
-
-    res.status(201).json({
-      mensaje: "Socio creado correctamente",
-      id: result.insertId,
-    });
-  });
+  );
 };
 
 // ==========================================
@@ -172,49 +388,61 @@ const crearSocio = (req, res) => {
 // ==========================================
 
 const actualizarSocio = (req, res) => {
-  const { id } = req.params;
+  const id =
+    obtenerIdValido(req.params.id);
 
-  const { nombre, email, plan, estado } = req.body;
-
-  if (!id) {
+  if (id === null) {
     return res.status(400).json({
-      mensaje: "El ID del socio es obligatorio",
+      mensaje:
+        "El ID del socio no es válido",
     });
   }
 
-  if (!nombre || !email || !plan || !estado) {
+  const validacion =
+    validarDatosSocio(req.body);
+
+  if (!validacion.valido) {
     return res.status(400).json({
-      mensaje: "Nombre, email, plan y estado son obligatorios",
+      mensaje: validacion.mensaje,
     });
   }
 
-  const socioActualizado = {
-    nombre,
-    email,
-    plan,
-    estado,
-  };
+  const socioActualizado =
+    validacion.datos;
 
-  Socios.actualizarSocio(id, socioActualizado, (err, result) => {
-    if (err) {
-      console.error(err);
+  Socios.actualizarSocio(
+    id,
+    socioActualizado,
+    (err, result) => {
+      if (err) {
+        console.error(err);
 
-      return res.status(500).json({
-        mensaje: "Error al actualizar el socio",
-        error: err,
+        if (err.code === "ER_DUP_ENTRY") {
+          return res.status(409).json({
+            mensaje:
+              "Ya existe un socio con ese email",
+          });
+        }
+
+        return res.status(500).json({
+          mensaje:
+            "Error al actualizar el socio",
+        });
+      }
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          mensaje:
+            "Socio no encontrado",
+        });
+      }
+
+      return res.json({
+        mensaje:
+          "Socio actualizado correctamente",
       });
     }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        mensaje: "Socio no encontrado",
-      });
-    }
-
-    res.json({
-      mensaje: "Socio actualizado correctamente",
-    });
-  });
+  );
 };
 
 // ==========================================
@@ -222,34 +450,48 @@ const actualizarSocio = (req, res) => {
 // ==========================================
 
 const eliminarSocio = (req, res) => {
-  const { id } = req.params;
+  const id =
+    obtenerIdValido(req.params.id);
 
-  if (!id) {
+  if (id === null) {
     return res.status(400).json({
-      mensaje: "El ID del socio es obligatorio",
+      mensaje:
+        "El ID del socio no es válido",
     });
   }
 
-  Socios.eliminarSocio(id, (err, result) => {
-    if (err) {
-      console.error(err);
+  Socios.eliminarSocio(
+    id,
+    (err, result) => {
+     if (err) {
+  console.error(err);
 
-      return res.status(500).json({
-        mensaje: "Error al eliminar el socio",
-        error: err,
-      });
-    }
-
-    if (result.affectedRows === 0) {
-      return res.status(404).json({
-        mensaje: "Socio no encontrado",
-      });
-    }
-
-    res.json({
-      mensaje: "Socio eliminado correctamente",
+  if (err.code === "ER_ROW_IS_REFERENCED_2") {
+    return res.status(409).json({
+      mensaje:
+        "No se puede eliminar el socio porque tiene registros asociados",
     });
+  }
+
+  return res.status(500).json({
+    mensaje:
+      "Error al eliminar el socio",
   });
+}
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          mensaje:
+            "Socio no encontrado",
+        });
+      }
+
+      return res.json({
+        mensaje:
+          "Socio eliminado correctamente",
+      });
+    }
+  );
 };
 
 // ==========================================

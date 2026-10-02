@@ -48,11 +48,16 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
       setNombre("");
       setEmail("");
       setPlan("Premium");
-    } catch (error) {
-      console.error(error);
-      alert("❌ No se pudo guardar el socio");
-    }
-  };
+   } catch (error) {
+  console.error(error);
+
+  const mensaje =
+    error.response?.data?.mensaje ||
+    "No se pudo guardar el socio";
+
+  alert(`❌ ${mensaje}`);
+}
+ } 
 
   return (
     <div className="card mb-4">

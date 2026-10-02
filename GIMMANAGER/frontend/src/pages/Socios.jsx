@@ -76,9 +76,14 @@ function Socios() {
 
       setTotalPaginas(datos.paginacion?.totalPaginas || 0);
     } catch (error) {
-      console.error(error);
+  console.error(error);
 
-      setError("No se pudieron cargar los socios.");
+  const mensaje =
+    error.response?.data?.mensaje ||
+    "No se pudieron cargar los socios.";
+
+  setError(mensaje);
+
     } finally {
       setCargando(false);
     }
@@ -145,11 +150,15 @@ function Socios() {
 
       await cargarSocios();
     } catch (error) {
-      console.error(error);
+  console.error(error);
 
-      alert("No se pudo eliminar el socio.");
-    }
-  };
+  const mensaje =
+    error.response?.data?.mensaje ||
+    "No se pudo eliminar el socio.";
+
+  alert(`❌ ${mensaje}`);
+
+  }}
 
   // ==========================================
   // CAMBIAR BÚSQUEDA
