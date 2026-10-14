@@ -267,7 +267,7 @@ const Horarios = () => {
           navigate("/dashboard")
         }
       >
-        ← Volver al Dashboard
+        ← Volver 
       </button>
 
       <h2 className="mb-4">

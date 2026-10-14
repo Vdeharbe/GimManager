@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 
+
 function FormularioSocio({ agregarSocio, socioAEditar }) {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
@@ -48,16 +49,15 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
       setNombre("");
       setEmail("");
       setPlan("Premium");
-   } catch (error) {
-  console.error(error);
+    } catch (error) {
+      console.error(error);
 
-  const mensaje =
-    error.response?.data?.mensaje ||
-    "No se pudo guardar el socio";
+      const mensaje =
+        error.response?.data?.mensaje || "No se pudo guardar el socio";
 
-  alert(`❌ ${mensaje}`);
-}
- } 
+      alert(`❌ ${mensaje}`);
+    }
+  };
 
   return (
     <div className="card mb-4">
@@ -88,7 +88,7 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
           <option value="Básico">Básico</option>
         </select>
 
-        <button className="btn btn-primary" onClick={guardar}>
+        <button className="btn btn-fit" onClick={guardar}>
           {socioAEditar ? "Guardar cambios" : "Agregar Socio"}
         </button>
       </div>

@@ -258,7 +258,7 @@ function Inscripciones() {
             navigate("/dashboard")
           }
         >
-          ← Volver al Dashboard
+          ← Volver 
         </button>
       </div>
 

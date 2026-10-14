@@ -273,7 +273,7 @@ const Rutinas = () => {
           navigate("/dashboard")
         }
       >
-        ← Volver al Dashboard
+        ← Volver 
       </button>
 
       {/* ======================================

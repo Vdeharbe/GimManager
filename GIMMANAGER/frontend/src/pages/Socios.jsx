@@ -216,7 +216,7 @@ function Socios() {
         className="btn btn-outline-secondary mb-3"
         onClick={() => navigate("/dashboard")}
       >
-        ← Volver al Dashboard
+        ← Volver
       </button>
 
       {/* ======================================
@@ -382,20 +382,24 @@ function Socios() {
 
                     {esAdmin && (
                       <td>
-                        <button
-                          className="btn btn-warning btn-sm me-2"
-                          onClick={() => setSocioAEditar(socio)}
-                        >
-                          ✏️ Editar
-                        </button>
+  <div className="d-flex gap-1">
+    <button
+      className="btn btn-warning btn-sm"
+      onClick={() => setSocioAEditar(socio)}
+      title="Editar socio"
+    >
+      ✏️
+    </button>
 
-                        <button
-                          className="btn btn-danger btn-sm"
-                          onClick={() => handleEliminar(socio.id)}
-                        >
-                          🗑️ Eliminar
-                        </button>
-                      </td>
+    <button
+      className="btn btn-danger btn-sm"
+      onClick={() => handleEliminar(socio.id)}
+      title="Eliminar socio"
+    >
+      🗑️
+    </button>
+  </div>
+</td>
                     )}
                   </tr>
                 ))

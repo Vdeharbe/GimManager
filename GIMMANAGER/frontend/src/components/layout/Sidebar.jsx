@@ -1,146 +1,137 @@
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { useAuth } from "../../context/AuthContext";
 
 function Sidebar() {
   const { usuario } = useAuth();
+  const [menuAbierto, setMenuAbierto] = useState(false);
 
   // ==========================================
   // SABER SI EL USUARIO ES ADMIN
   // ==========================================
 
-  const esAdmin =
-    usuario?.rol === "admin";
+  const esAdmin = usuario?.rol === "admin";
+
+  // Cierra el menú móvil cuando elegimos una opción
+  const cerrarMenu = () => {
+    setMenuAbierto(false);
+  };
 
   return (
-    <div
-      className="bg-light border-end p-3"
-      style={{
-        width: "230px",
-        minHeight: "100vh",
-      }}
-    >
-      <h5>Menú</h5>
+    <>
+      {/* ==========================================
+          BOTÓN MENÚ - SOLO CELULAR
+      ========================================== */}
 
-      <ul className="nav flex-column">
+     <div className="d-md-none w-100 bg-light border-bottom p-2">
+  <button
+    className="btn btn-sm btn-outline-dark"
+    onClick={() => setMenuAbierto(!menuAbierto)}
+  >
+    {menuAbierto ? "✕ Cerrar" : "☰ Menú"}
+  </button>
+</div>
+      {/* ==========================================
+          SIDEBAR
+          
+          PC: siempre visible
+          CELULAR: depende de menuAbierto
+      ========================================== */}
 
-        {/* ======================================
-            DASHBOARD
-            ADMIN + INSTRUCTOR
-        ====================================== */}
+      <div
+  className={`
+    sidebar-fit bg-light border-end
+    ${menuAbierto ? "d-block" : "d-none"}
+    d-md-block
+  `}
+      >
+        <ul className="nav flex-column">
+          {/* DASHBOARD */}
 
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            to="/dashboard"
-          >
-            🏠 Dashboard
-          </Link>
-        </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/dashboard" onClick={cerrarMenu}>
+              🏠 Dashboard
+            </Link>
+          </li>
 
-        {/* ======================================
-            SOCIOS
-            ADMIN + INSTRUCTOR
-        ====================================== */}
+          {/* SOCIOS */}
 
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            to="/socios"
-          >
-            👥 Socios
-          </Link>
-        </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/socios" onClick={cerrarMenu}>
+              👥 Socios
+            </Link>
+          </li>
 
-        {/* ======================================
-            PROFESORES
-            ADMIN + INSTRUCTOR
-        ====================================== */}
+          {/* PROFESORES */}
 
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            to="/profesores"
-          >
-            🏋️ Profesores
-          </Link>
-        </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/profesores" onClick={cerrarMenu}>
+              🏋️ Profesores
+            </Link>
+          </li>
 
-        {/* ======================================
-            RUTINAS
-            ADMIN + INSTRUCTOR
-        ====================================== */}
+          {/* RUTINAS */}
 
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            to="/rutinas"
-          >
-            📝 Rutinas
-          </Link>
-        </li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/rutinas" onClick={cerrarMenu}>
+              📝 Rutinas
+            </Link>
+          </li>
 
-        {/* ======================================
-            HORARIOS
-            ADMIN + INSTRUCTOR
-        ====================================== */}
+          {/* HORARIOS */}
 
-        <li className="nav-item">
-          <Link
-            className="nav-link"
-            to="/horarios"
-          >
-            🕒 Horarios
-          </Link>
-        </li>
-        <li className="nav-item">
-  <Link className="nav-link" to="/inscripciones">
-    🎟️ Inscripciones
-  </Link>
-</li>
+          <li className="nav-item">
+            <Link className="nav-link" to="/horarios" onClick={cerrarMenu}>
+              🕒 Horarios
+            </Link>
+          </li>
 
-        {/* ======================================
-            OPCIONES SOLO PARA ADMIN
-        ====================================== */}
+          {/* INSCRIPCIONES */}
 
-        {esAdmin && (
-          <>
-            {/* PAGOS */}
+          <li className="nav-item">
+            <Link className="nav-link" to="/inscripciones" onClick={cerrarMenu}>
+              🎟️ Inscripciones
+            </Link>
+          </li>
 
-            <li className="nav-item">
-              <Link
-                className="nav-link"
-                to="/pagos"
-              >
-                💳 Pagos
-              </Link>
-            </li>
+          {/* ======================================
+              OPCIONES SOLO PARA ADMIN
+          ====================================== */}
 
-            {/* REPORTES */}
+          {esAdmin && (
+            <>
+              {/* PAGOS */}
 
-            <li className="nav-item">
-              <Link
-                className="nav-link"
-                to="/reportes"
-              >
-                📊 Reportes
-              </Link>
-            </li>
+              <li className="nav-item">
+                <Link className="nav-link" to="/pagos" onClick={cerrarMenu}>
+                  💳 Pagos
+                </Link>
+              </li>
 
-            {/* CONFIGURACIÓN */}
+              {/* REPORTES */}
 
-            <li className="nav-item">
-              <Link
-                className="nav-link"
-                to="/configuracion"
-              >
-                ⚙️ Configuración
-              </Link>
-            </li>
-          </>
-        )}
+              <li className="nav-item">
+                <Link className="nav-link" to="/reportes" onClick={cerrarMenu}>
+                  📊 Reportes
+                </Link>
+              </li>
 
-      </ul>
-    </div>
+              {/* CONFIGURACIÓN */}
+
+              <li className="nav-item">
+                <Link
+                  className="nav-link"
+                  to="/configuracion"
+                  onClick={cerrarMenu}
+                >
+                  ⚙️ Configuración
+                </Link>
+              </li>
+            </>
+          )}
+        </ul>
+      </div>
+    </>
   );
 }
 

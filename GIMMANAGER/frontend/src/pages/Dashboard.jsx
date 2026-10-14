@@ -197,21 +197,9 @@ function Dashboard() {
 
       <div className="container mt-4 flex-grow-1">
 
-        {/* ==================================
-            VOLVER
-        ================================== */}
+        
 
-        <button
-          className="btn btn-outline-secondary mb-3"
-          onClick={() => navigate(-1)}
-        >
-          ← Volver
-        </button>
-
-        <h2 className="mb-4">
-          📊 Dashboard
-        </h2>
-
+        
         {/* ==================================
             CARGANDO
         ================================== */}

@@ -198,9 +198,7 @@ function Reportes() {
         ← Volver
       </button>
 
-      <h2 className="mb-4">
-        📊 Reportes
-      </h2>
+      
 
       {/* ======================================
           CARGANDO
