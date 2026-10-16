@@ -1,9 +1,4 @@
-import {
-  useEffect,
-  useState,
-} from "react";
-
-import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 import Sidebar from "../components/layout/Sidebar";
 import StatCard from "../components/ui/StatCard";
@@ -27,16 +22,13 @@ import {
 } from "recharts";
 
 function Dashboard() {
-  const navigate = useNavigate();
-
   const { usuario } = useAuth();
 
   // ==========================================
   // SABER SI ES ADMIN
   // ==========================================
 
-  const esAdmin =
-    usuario?.rol === "admin";
+  const esAdmin = usuario?.rol === "admin";
 
   // ==========================================
   // RESUMEN GENERAL
@@ -52,10 +44,7 @@ function Dashboard() {
   // RESUMEN FINANCIERO
   // ==========================================
 
-  const [
-    resumenFinanciero,
-    setResumenFinanciero,
-  ] = useState({
+  const [resumenFinanciero, setResumenFinanciero] = useState({
     totalPagos: 0,
     totalCobrado: 0,
   });
@@ -64,33 +53,25 @@ function Dashboard() {
   // INGRESOS MENSUALES
   // ==========================================
 
-  const [
-    ingresosMensuales,
-    setIngresosMensuales,
-  ] = useState([]);
+  const [ingresosMensuales, setIngresosMensuales] = useState([]);
 
   // ==========================================
   // ESTADOS DE PANTALLA
   // ==========================================
 
-  const [cargando, setCargando] =
-    useState(true);
+  const [cargando, setCargando] = useState(true);
 
-  const [error, setError] =
-    useState("");
+  const [error, setError] = useState("");
 
   // ==========================================
   // FORMATEAR MONEDA
   // ==========================================
 
   const formatearMoneda = (valor) => {
-    return Number(valor).toLocaleString(
-      "es-AR",
-      {
-        style: "currency",
-        currency: "ARS",
-      }
-    );
+    return Number(valor).toLocaleString("es-AR", {
+      style: "currency",
+      currency: "ARS",
+    });
   };
 
   // ==========================================
@@ -103,22 +84,14 @@ function Dashboard() {
       return "";
     }
 
-    const [anio, numeroMes] =
-      mes.split("-");
+    const [anio, numeroMes] = mes.split("-");
 
-    const fecha = new Date(
-      Number(anio),
-      Number(numeroMes) - 1,
-      1
-    );
+    const fecha = new Date(Number(anio), Number(numeroMes) - 1, 1);
 
-    return fecha.toLocaleDateString(
-      "es-AR",
-      {
-        month: "short",
-        year: "numeric",
-      }
-    );
+    return fecha.toLocaleDateString("es-AR", {
+      month: "short",
+      year: "numeric",
+    });
   };
 
   // ==========================================
@@ -135,8 +108,7 @@ function Dashboard() {
       // Admin + Instructor
       // ======================================
 
-      const datosResumen =
-        await obtenerResumen();
+      const datosResumen = await obtenerResumen();
 
       setResumen(datosResumen);
 
@@ -146,33 +118,19 @@ function Dashboard() {
       // ======================================
 
       if (esAdmin) {
-        const [
-          datosFinancieros,
-          datosIngresos,
-        ] = await Promise.all([
+        const [datosFinancieros, datosIngresos] = await Promise.all([
           obtenerResumenFinanciero(),
           obtenerIngresosPorMes(),
         ]);
 
-        setResumenFinanciero(
-          datosFinancieros
-        );
+        setResumenFinanciero(datosFinancieros);
 
-        setIngresosMensuales(
-          datosIngresos
-        );
+        setIngresosMensuales(datosIngresos);
       }
-
     } catch (error) {
-      console.error(
-        "Error al cargar dashboard:",
-        error
-      );
+      console.error("Error al cargar dashboard:", error);
 
-      setError(
-        "No se pudieron cargar los datos del dashboard."
-      );
-
+      setError("No se pudieron cargar los datos del dashboard.");
     } finally {
       setCargando(false);
     }
@@ -188,7 +146,6 @@ function Dashboard() {
 
   return (
     <div className="d-flex">
-
       {/* SIDEBAR */}
 
       <Sidebar />
@@ -196,29 +153,19 @@ function Dashboard() {
       {/* CONTENIDO */}
 
       <div className="container mt-4 flex-grow-1">
-
-        
-
-        
         {/* ==================================
             CARGANDO
         ================================== */}
 
         {cargando && (
-          <div className="alert alert-info">
-            Cargando información...
-          </div>
+          <div className="alert alert-info">Cargando información...</div>
         )}
 
         {/* ==================================
             ERROR
         ================================== */}
 
-        {error && (
-          <div className="alert alert-danger">
-            {error}
-          </div>
-        )}
+        {error && <div className="alert alert-danger">{error}</div>}
 
         {/* ==================================
             CONTENIDO
@@ -226,53 +173,40 @@ function Dashboard() {
 
         {!cargando && !error && (
           <>
-
             {/* ==============================
                 DATOS GENERALES
             ============================== */}
 
             <div className="row g-4">
-
               {/* SOCIOS TOTALES */}
 
               <div className="col-md-4">
-
                 <StatCard
                   titulo="Socios totales"
                   valor={resumen.socios}
                   color="secondary"
                 />
-
               </div>
 
               {/* SOCIOS ACTIVOS */}
 
               <div className="col-md-4">
-
                 <StatCard
                   titulo="Socios activos"
-                  valor={
-                    resumen.sociosActivos
-                  }
+                  valor={resumen.sociosActivos}
                   color="primary"
                 />
-
               </div>
 
               {/* PROFESORES */}
 
               <div className="col-md-4">
-
                 <StatCard
                   titulo="Profesores"
-                  valor={
-                    resumen.profesores
-                  }
+                  valor={resumen.profesores}
                   color="success"
                 />
-
               </div>
-
             </div>
 
             {/* ==============================
@@ -282,41 +216,28 @@ function Dashboard() {
 
             {esAdmin && (
               <>
-
-                <h4 className="mt-5 mb-3">
-                  💰 Información financiera
-                </h4>
+                <h4 className="mt-5 mb-3">💰 Información financiera</h4>
 
                 <div className="row g-4">
-
                   {/* TOTAL PAGOS */}
 
                   <div className="col-md-6">
-
                     <StatCard
                       titulo="Pagos"
-                      valor={
-                        resumenFinanciero.totalPagos
-                      }
+                      valor={resumenFinanciero.totalPagos}
                       color="warning"
                     />
-
                   </div>
 
                   {/* TOTAL COBRADO */}
 
                   <div className="col-md-6">
-
                     <StatCard
                       titulo="Total cobrado"
-                      valor={formatearMoneda(
-                        resumenFinanciero.totalCobrado
-                      )}
+                      valor={formatearMoneda(resumenFinanciero.totalCobrado)}
                       color="info"
                     />
-
                   </div>
-
                 </div>
 
                 {/* ==========================
@@ -324,38 +245,23 @@ function Dashboard() {
                 ========================== */}
 
                 <div className="card shadow-sm mt-4 mb-4">
-
                   <div className="card-body">
+                    <h4 className="card-title mb-4">📈 Ingresos mensuales</h4>
 
-                    <h4 className="card-title mb-4">
-                      📈 Ingresos mensuales
-                    </h4>
-
-                    {ingresosMensuales.length ===
-                    0 ? (
-
+                    {ingresosMensuales.length === 0 ? (
                       <div className="alert alert-warning">
                         No hay ingresos para mostrar.
                       </div>
-
                     ) : (
-
                       <div
                         style={{
                           width: "100%",
                           height: "350px",
                         }}
                       >
-
-                        <ResponsiveContainer
-                          width="100%"
-                          height="100%"
-                        >
-
+                        <ResponsiveContainer width="100%" height="100%">
                           <BarChart
-                            data={
-                              ingresosMensuales
-                            }
+                            data={ingresosMensuales}
                             margin={{
                               top: 20,
                               right: 30,
@@ -363,59 +269,32 @@ function Dashboard() {
                               bottom: 20,
                             }}
                           >
+                            <CartesianGrid strokeDasharray="3 3" />
 
-                            <CartesianGrid
-                              strokeDasharray="3 3"
-                            />
-
-                            <XAxis
-                              dataKey="mes"
-                              tickFormatter={
-                                formatearMes
-                              }
-                            />
+                            <XAxis dataKey="mes" tickFormatter={formatearMes} />
 
                             <YAxis />
 
                             <Tooltip
-                              labelFormatter={
-                                formatearMes
-                              }
-                              formatter={(
-                                value
-                              ) => [
-                                formatearMoneda(
-                                  value
-                                ),
+                              labelFormatter={formatearMes}
+                              formatter={(value) => [
+                                formatearMoneda(value),
                                 "Ingresos",
                               ]}
                             />
 
-                            <Bar
-                              dataKey="total"
-                              name="Ingresos"
-                            />
-
+                            <Bar dataKey="total" name="Ingresos" />
                           </BarChart>
-
                         </ResponsiveContainer>
-
                       </div>
-
                     )}
-
                   </div>
-
                 </div>
-
               </>
             )}
-
           </>
         )}
-
       </div>
-
     </div>
   );
 }

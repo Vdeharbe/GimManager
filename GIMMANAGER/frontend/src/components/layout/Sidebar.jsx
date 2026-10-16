@@ -46,53 +46,46 @@ function Sidebar() {
   `}
       >
         <ul className="nav flex-column">
-          {/* DASHBOARD */}
+                   
+{/* SOCIOS */}
+<li className="nav-item">
+  <Link className="nav-link" to="/socios" onClick={cerrarMenu}>
+    <span className="sidebar-icon">👥</span>
+    <span>Socios</span>
+  </Link>
+</li>
 
-          <li className="nav-item">
-            <Link className="nav-link" to="/dashboard" onClick={cerrarMenu}>
-              🏠 Dashboard
-            </Link>
-          </li>
+{/* PROFESORES */}
+<li className="nav-item">
+  <Link className="nav-link" to="/profesores" onClick={cerrarMenu}>
+    <span className="sidebar-icon">🏋️</span>
+    <span>Profesores</span>
+  </Link>
+</li>
 
-          {/* SOCIOS */}
+{/* RUTINAS */}
+<li className="nav-item">
+  <Link className="nav-link" to="/rutinas" onClick={cerrarMenu}>
+    <span className="sidebar-icon">📝</span>
+    <span>Rutinas</span>
+  </Link>
+</li>
 
-          <li className="nav-item">
-            <Link className="nav-link" to="/socios" onClick={cerrarMenu}>
-              👥 Socios
-            </Link>
-          </li>
+{/* HORARIOS */}
+<li className="nav-item">
+  <Link className="nav-link" to="/horarios" onClick={cerrarMenu}>
+    <span className="sidebar-icon">🕒</span>
+    <span>Horarios</span>
+  </Link>
+</li>
 
-          {/* PROFESORES */}
-
-          <li className="nav-item">
-            <Link className="nav-link" to="/profesores" onClick={cerrarMenu}>
-              🏋️ Profesores
-            </Link>
-          </li>
-
-          {/* RUTINAS */}
-
-          <li className="nav-item">
-            <Link className="nav-link" to="/rutinas" onClick={cerrarMenu}>
-              📝 Rutinas
-            </Link>
-          </li>
-
-          {/* HORARIOS */}
-
-          <li className="nav-item">
-            <Link className="nav-link" to="/horarios" onClick={cerrarMenu}>
-              🕒 Horarios
-            </Link>
-          </li>
-
-          {/* INSCRIPCIONES */}
-
-          <li className="nav-item">
-            <Link className="nav-link" to="/inscripciones" onClick={cerrarMenu}>
-              🎟️ Inscripciones
-            </Link>
-          </li>
+{/* INSCRIPCIONES */}
+<li className="nav-item">
+  <Link className="nav-link" to="/inscripciones" onClick={cerrarMenu}>
+    <span className="sidebar-icon">🎟️</span>
+    <span>Inscripciones</span>
+  </Link>
+</li>
 
           {/* ======================================
               OPCIONES SOLO PARA ADMIN
@@ -100,33 +93,30 @@ function Sidebar() {
 
           {esAdmin && (
             <>
-              {/* PAGOS */}
+             <li className="nav-item">
+  <Link className="nav-link" to="/pagos" onClick={cerrarMenu}>
+    <span className="sidebar-icon">💳</span>
+    <span>Pagos</span>
+  </Link>
+</li>
 
-              <li className="nav-item">
-                <Link className="nav-link" to="/pagos" onClick={cerrarMenu}>
-                  💳 Pagos
-                </Link>
-              </li>
+<li className="nav-item">
+  <Link className="nav-link" to="/reportes" onClick={cerrarMenu}>
+    <span className="sidebar-icon">📊</span>
+    <span>Reportes</span>
+  </Link>
+</li>
 
-              {/* REPORTES */}
-
-              <li className="nav-item">
-                <Link className="nav-link" to="/reportes" onClick={cerrarMenu}>
-                  📊 Reportes
-                </Link>
-              </li>
-
-              {/* CONFIGURACIÓN */}
-
-              <li className="nav-item">
-                <Link
-                  className="nav-link"
-                  to="/configuracion"
-                  onClick={cerrarMenu}
-                >
-                  ⚙️ Configuración
-                </Link>
-              </li>
+<li className="nav-item">
+  <Link
+    className="nav-link"
+    to="/configuracion"
+    onClick={cerrarMenu}
+  >
+    <span className="sidebar-icon">⚙️</span>
+    <span>Configuración</span>
+  </Link>
+</li>
             </>
           )}
         </ul>

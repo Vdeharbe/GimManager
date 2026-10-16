@@ -113,3 +113,16 @@ h6 {
     padding: 10px 12px;
   }
 }
+
+/* =========================================
+   ICONOS DEL SIDEBAR
+   ========================================= */
+
+.sidebar-icon {
+  width: 30px;
+  min-width: 30px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+}
