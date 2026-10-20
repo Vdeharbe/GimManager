@@ -7,6 +7,7 @@ import { useAuth } from "../context/AuthContext";
 
 import {
   obtenerResumen,
+  obtenerResumenOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 } from "../services/reportesService";
@@ -39,6 +40,18 @@ function Dashboard() {
     sociosActivos: 0,
     sociosInactivos: 0,
     profesores: 0,
+    inscripciones: 0,
+    horariosActivos: 0,
+  });
+
+  // ==========================================
+  // RESUMEN DE OCUPACIÓN
+  // ==========================================
+
+  const [resumenOcupacion, setResumenOcupacion] = useState({
+    cuposTotales: 0,
+    inscripcionesActivas: 0,
+    cuposDisponibles: 0,
   });
 
   // ==========================================
@@ -61,7 +74,6 @@ function Dashboard() {
   // ==========================================
 
   const [cargando, setCargando] = useState(true);
-
   const [error, setError] = useState("");
 
   // ==========================================
@@ -114,6 +126,15 @@ function Dashboard() {
       setResumen(datosResumen);
 
       // ======================================
+      // DATOS DE OCUPACIÓN
+      // Admin + Instructor
+      // ======================================
+
+      const datosOcupacion = await obtenerResumenOcupacion();
+
+      setResumenOcupacion(datosOcupacion);
+
+      // ======================================
       // DATOS FINANCIEROS
       // Solo Admin
       // ======================================
@@ -125,7 +146,6 @@ function Dashboard() {
         ]);
 
         setResumenFinanciero(datosFinancieros);
-
         setIngresosMensuales(datosIngresos);
       }
     } catch (error) {
@@ -155,6 +175,23 @@ function Dashboard() {
           (Number(resumen.sociosActivos) / Number(resumen.socios)) * 100,
         )
       : 0;
+
+  // ==========================================
+  // PORCENTAJE DE OCUPACIÓN
+  // ==========================================
+
+  const porcentajeOcupacion =
+    Number(resumenOcupacion.cuposTotales) > 0
+      ? Math.round(
+          (Number(resumenOcupacion.inscripcionesActivas) /
+            Number(resumenOcupacion.cuposTotales)) *
+            100,
+        )
+      : 0;
+
+  // ==========================================
+  // INTERFAZ
+  // ==========================================
 
   return (
     <div className="d-flex">
@@ -186,8 +223,8 @@ function Dashboard() {
         {!cargando && !error && (
           <>
             {/* ==============================
-    DATOS GENERALES
-============================== */}
+                DATOS GENERALES
+            ============================== */}
 
             <div className="row g-4">
               {/* SOCIOS TOTALES */}
@@ -230,22 +267,10 @@ function Dashboard() {
                 />
               </div>
             </div>
-            {/* ==============================
-    INSCRIPCIONES
-============================== */}
 
-<div className="row g-4 mt-1">
-  <div className="col-md-4">
-    <StatCard
-      titulo="Inscripciones"
-      valor={resumen.inscripciones}
-      color="dark"
-    />
-  </div>
-</div>
             {/* ==============================
-    PORCENTAJE DE SOCIOS ACTIVOS
-============================== */}
+                PORCENTAJE DE SOCIOS ACTIVOS
+            ============================== */}
 
             <div className="card shadow-sm mt-4">
               <div className="card-body">
@@ -271,6 +296,103 @@ function Dashboard() {
                     }}
                   >
                     {porcentajeActivos}%
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* ==============================
+                ACTIVIDAD DEL GIMNASIO
+            ============================== */}
+
+            <div className="row g-4 mt-1">
+              {/* INSCRIPCIONES */}
+
+              <div className="col-md-6">
+                <StatCard
+                  titulo="Inscripciones"
+                  valor={resumen.inscripciones}
+                  color="dark"
+                />
+              </div>
+
+              {/* HORARIOS ACTIVOS */}
+
+              <div className="col-md-6">
+                <StatCard
+                  titulo="Horarios activos"
+                  valor={resumen.horariosActivos}
+                  color="warning"
+                />
+              </div>
+            </div>
+
+            {/* ==============================
+                OCUPACIÓN DEL GIMNASIO
+            ============================== */}
+
+            <h4 className="mt-5 mb-3">🏋️ Ocupación del gimnasio</h4>
+
+            <div className="row g-4">
+              {/* CUPOS TOTALES */}
+
+              <div className="col-md-4">
+                <StatCard
+                  titulo="Cupos totales"
+                  valor={resumenOcupacion.cuposTotales}
+                  color="secondary"
+                />
+              </div>
+
+              {/* INSCRIPCIONES ACTIVAS */}
+
+              <div className="col-md-4">
+                <StatCard
+                  titulo="Inscripciones activas"
+                  valor={resumenOcupacion.inscripcionesActivas}
+                  color="primary"
+                />
+              </div>
+
+              {/* CUPOS DISPONIBLES */}
+
+              <div className="col-md-4">
+                <StatCard
+                  titulo="Cupos disponibles"
+                  valor={resumenOcupacion.cuposDisponibles}
+                  color="success"
+                />
+              </div>
+            </div>
+
+            {/* ==============================
+                PORCENTAJE DE OCUPACIÓN
+            ============================== */}
+
+            <div className="card shadow-sm mt-4">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h5 className="card-title mb-0">Porcentaje de ocupación</h5>
+
+                  <strong>{porcentajeOcupacion}%</strong>
+                </div>
+
+                <div
+                  className="progress"
+                  role="progressbar"
+                  aria-label="Porcentaje de ocupación"
+                  aria-valuenow={porcentajeOcupacion}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  <div
+                    className="progress-bar"
+                    style={{
+                      width: `${porcentajeOcupacion}%`,
+                      backgroundColor: "var(--accent)",
+                    }}
+                  >
+                    {porcentajeOcupacion}%
                   </div>
                 </div>
               </div>

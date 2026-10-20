@@ -6,27 +6,20 @@ const Reportes = require("../models/reportes.model");
 // ==========================================
 
 const obtenerResumen = (req, res) => {
-  Reportes.obtenerResumen(
-    (error, resultados) => {
+  Reportes.obtenerResumen((error, resultados) => {
+    if (error) {
+      console.error("Error al obtener resumen:", error);
 
-      if (error) {
-        console.error(
-          "Error al obtener resumen:",
-          error
-        );
-
-        return res.status(500).json({
-          mensaje:
-            "Error al obtener el resumen",
-        });
-      }
-
-      // La consulta devuelve una sola fila.
-      // Por eso enviamos resultados[0].
-
-      res.json(resultados[0]);
+      return res.status(500).json({
+        mensaje: "Error al obtener el resumen",
+      });
     }
-  );
+
+    // La consulta devuelve una sola fila.
+    // Por eso enviamos resultados[0].
+
+    res.json(resultados[0]);
+  });
 };
 
 // ==========================================
@@ -34,30 +27,39 @@ const obtenerResumen = (req, res) => {
 // Solo Admin
 // ==========================================
 
-const obtenerResumenFinanciero = (
-  req,
-  res
-) => {
-  Reportes.obtenerResumenFinanciero(
-    (error, resultados) => {
+const obtenerResumenFinanciero = (req, res) => {
+  Reportes.obtenerResumenFinanciero((error, resultados) => {
+    if (error) {
+      console.error("Error al obtener resumen financiero:", error);
 
-      if (error) {
-        console.error(
-          "Error al obtener resumen financiero:",
-          error
-        );
-
-        return res.status(500).json({
-          mensaje:
-            "Error al obtener el resumen financiero",
-        });
-      }
-
-      // La consulta devuelve una sola fila.
-
-      res.json(resultados[0]);
+      return res.status(500).json({
+        mensaje: "Error al obtener el resumen financiero",
+      });
     }
-  );
+
+    // La consulta devuelve una sola fila.
+
+    res.json(resultados[0]);
+  });
+};
+// ==========================================
+// OBTENER RESUMEN DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+const obtenerResumenOcupacion = (req, res) => {
+  Reportes.obtenerResumenOcupacion((error, resultados) => {
+    if (error) {
+      console.error("Error al obtener resumen de ocupación:", error);
+
+      return res.status(500).json({
+        mensaje: "Error al obtener el resumen de ocupación",
+      });
+    }
+
+    // La consulta devuelve una sola fila.
+    res.json(resultados[0]);
+  });
 };
 
 // ==========================================
@@ -65,28 +67,18 @@ const obtenerResumenFinanciero = (
 // Solo Admin
 // ==========================================
 
-const obtenerIngresosPorMes = (
-  req,
-  res
-) => {
-  Reportes.obtenerIngresosPorMes(
-    (error, resultados) => {
+const obtenerIngresosPorMes = (req, res) => {
+  Reportes.obtenerIngresosPorMes((error, resultados) => {
+    if (error) {
+      console.error("Error al obtener ingresos por mes:", error);
 
-      if (error) {
-        console.error(
-          "Error al obtener ingresos por mes:",
-          error
-        );
-
-        return res.status(500).json({
-          mensaje:
-            "Error al obtener los ingresos por mes",
-        });
-      }
-
-      res.json(resultados);
+      return res.status(500).json({
+        mensaje: "Error al obtener los ingresos por mes",
+      });
     }
-  );
+
+    res.json(resultados);
+  });
 };
 
 // ==========================================
@@ -95,6 +87,7 @@ const obtenerIngresosPorMes = (
 
 module.exports = {
   obtenerResumen,
+  obtenerResumenOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 };

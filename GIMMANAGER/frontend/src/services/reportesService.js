@@ -19,6 +19,25 @@ export const obtenerResumen = async () => {
     throw error;
   }
 };
+// ==========================================
+// OBTENER RESUMEN DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+export const obtenerResumenOcupacion = async () => {
+  try {
+    const respuesta = await api.get("/reportes/ocupacion");
+
+    return respuesta.data;
+  } catch (error) {
+    console.error(
+      "❌ Error al obtener resumen de ocupación:",
+      error.response?.data || error.message,
+    );
+
+    throw error;
+  }
+};
 
 // ==========================================
 // OBTENER RESUMEN FINANCIERO
