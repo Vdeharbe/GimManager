@@ -16,7 +16,14 @@ const obtenerResumen = (callback) => {
        WHERE estado = 'Activo') AS sociosActivos,
 
       (SELECT COUNT(*)
-       FROM profesores) AS profesores
+       FROM socios
+       WHERE estado = 'Inactivo') AS sociosInactivos,
+
+      (SELECT COUNT(*)
+       FROM profesores) AS profesores,
+
+      (SELECT COUNT(*)
+       FROM inscripciones) AS inscripciones
   `;
 
   db.query(
@@ -24,7 +31,6 @@ const obtenerResumen = (callback) => {
     callback
   );
 };
-
 // ==========================================
 // OBTENER RESUMEN FINANCIERO
 // Solo Admin
@@ -41,10 +47,7 @@ const obtenerResumenFinanciero = (callback) => {
        WHERE estado = 'Pagado') AS totalCobrado
   `;
 
-  db.query(
-    consulta,
-    callback
-  );
+  db.query(consulta, callback);
 };
 
 // ==========================================
@@ -64,10 +67,7 @@ const obtenerIngresosPorMes = (callback) => {
     ORDER BY mes ASC
   `;
 
-  db.query(
-    consulta,
-    callback
-  );
+  db.query(consulta, callback);
 };
 
 // ==========================================

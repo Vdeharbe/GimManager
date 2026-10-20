@@ -37,6 +37,7 @@ function Dashboard() {
   const [resumen, setResumen] = useState({
     socios: 0,
     sociosActivos: 0,
+    sociosInactivos: 0,
     profesores: 0,
   });
 
@@ -144,6 +145,17 @@ function Dashboard() {
     cargarDashboard();
   }, [esAdmin]);
 
+  // ==========================================
+  // PORCENTAJE DE SOCIOS ACTIVOS
+  // ==========================================
+
+  const porcentajeActivos =
+    Number(resumen.socios) > 0
+      ? Math.round(
+          (Number(resumen.sociosActivos) / Number(resumen.socios)) * 100,
+        )
+      : 0;
+
   return (
     <div className="d-flex">
       {/* SIDEBAR */}
@@ -174,13 +186,13 @@ function Dashboard() {
         {!cargando && !error && (
           <>
             {/* ==============================
-                DATOS GENERALES
-            ============================== */}
+    DATOS GENERALES
+============================== */}
 
             <div className="row g-4">
               {/* SOCIOS TOTALES */}
 
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <StatCard
                   titulo="Socios totales"
                   valor={resumen.socios}
@@ -190,7 +202,7 @@ function Dashboard() {
 
               {/* SOCIOS ACTIVOS */}
 
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <StatCard
                   titulo="Socios activos"
                   valor={resumen.sociosActivos}
@@ -198,14 +210,69 @@ function Dashboard() {
                 />
               </div>
 
+              {/* SOCIOS INACTIVOS */}
+
+              <div className="col-md-3">
+                <StatCard
+                  titulo="Socios inactivos"
+                  valor={resumen.sociosInactivos}
+                  color="warning"
+                />
+              </div>
+
               {/* PROFESORES */}
 
-              <div className="col-md-4">
+              <div className="col-md-3">
                 <StatCard
                   titulo="Profesores"
                   valor={resumen.profesores}
                   color="success"
                 />
+              </div>
+            </div>
+            {/* ==============================
+    INSCRIPCIONES
+============================== */}
+
+<div className="row g-4 mt-1">
+  <div className="col-md-4">
+    <StatCard
+      titulo="Inscripciones"
+      valor={resumen.inscripciones}
+      color="dark"
+    />
+  </div>
+</div>
+            {/* ==============================
+    PORCENTAJE DE SOCIOS ACTIVOS
+============================== */}
+
+            <div className="card shadow-sm mt-4">
+              <div className="card-body">
+                <div className="d-flex justify-content-between align-items-center mb-2">
+                  <h5 className="card-title mb-0">Nivel de socios activos</h5>
+
+                  <strong>{porcentajeActivos}%</strong>
+                </div>
+
+                <div
+                  className="progress"
+                  role="progressbar"
+                  aria-label="Porcentaje de socios activos"
+                  aria-valuenow={porcentajeActivos}
+                  aria-valuemin="0"
+                  aria-valuemax="100"
+                >
+                  <div
+                    className="progress-bar"
+                    style={{
+                      width: `${porcentajeActivos}%`,
+                      backgroundColor: "var(--accent)",
+                    }}
+                  >
+                    {porcentajeActivos}%
+                  </div>
+                </div>
               </div>
             </div>
 
