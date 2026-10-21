@@ -30,10 +30,7 @@ const obtenerResumen = (callback) => {
  WHERE estado = 'Activo') AS horariosActivos
   `;
 
-  db.query(
-    consulta,
-    callback
-  );
+  db.query(consulta, callback);
 };
 // ==========================================
 // OBTENER RESUMEN FINANCIERO
@@ -83,10 +80,53 @@ const obtenerResumenOcupacion = (callback) => {
     ) AS ocupacion
   `;
 
-  db.query(
-    consulta,
-    callback
-  );
+  db.query(consulta, callback);
+};
+
+// ==========================================
+// OBTENER ALERTAS DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+const obtenerAlertasOcupacion = (callback) => {
+  const consulta = `
+    SELECT
+      h.id,
+      h.actividad,
+      h.dia_semana,
+      h.hora_inicio,
+      h.cupo_maximo,
+
+      COUNT(i.id) AS inscriptosActivos,
+
+      h.cupo_maximo - COUNT(i.id)
+        AS cuposDisponibles,
+
+      ROUND(
+        (COUNT(i.id) / h.cupo_maximo) * 100
+      ) AS porcentajeOcupacion
+
+    FROM horarios h
+
+    LEFT JOIN inscripciones i
+      ON h.id = i.horario_id
+      AND i.estado = 'Activa'
+
+    WHERE h.estado = 'Activo'
+
+    GROUP BY
+      h.id,
+      h.actividad,
+      h.dia_semana,
+      h.hora_inicio,
+      h.cupo_maximo
+
+    HAVING porcentajeOcupacion >= 80
+
+    ORDER BY porcentajeOcupacion DESC
+  `;
+
+  db.query(consulta, callback);
 };
 
 // ==========================================
@@ -116,6 +156,7 @@ const obtenerIngresosPorMes = (callback) => {
 module.exports = {
   obtenerResumen,
   obtenerResumenOcupacion,
+  obtenerAlertasOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 };

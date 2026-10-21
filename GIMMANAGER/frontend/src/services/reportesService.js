@@ -38,6 +38,27 @@ export const obtenerResumenOcupacion = async () => {
     throw error;
   }
 };
+// ==========================================
+// OBTENER ALERTAS DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+export const obtenerAlertasOcupacion = async () => {
+  try {
+    const respuesta = await api.get(
+      "/reportes/alertas-ocupacion"
+    );
+
+    return respuesta.data;
+  } catch (error) {
+    console.error(
+      "❌ Error al obtener alertas de ocupación:",
+      error.response?.data || error.message,
+    );
+
+    throw error;
+  }
+};
 
 // ==========================================
 // OBTENER RESUMEN FINANCIERO

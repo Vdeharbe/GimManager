@@ -63,6 +63,32 @@ const obtenerResumenOcupacion = (req, res) => {
 };
 
 // ==========================================
+// OBTENER ALERTAS DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+const obtenerAlertasOcupacion = (req, res) => {
+  Reportes.obtenerAlertasOcupacion(
+    (error, resultados) => {
+
+      if (error) {
+        console.error(
+          "Error al obtener alertas de ocupación:",
+          error
+        );
+
+        return res.status(500).json({
+          mensaje:
+            "Error al obtener las alertas de ocupación",
+        });
+      }
+
+      res.json(resultados);
+    }
+  );
+};
+
+// ==========================================
 // OBTENER INGRESOS POR MES
 // Solo Admin
 // ==========================================
@@ -88,6 +114,7 @@ const obtenerIngresosPorMes = (req, res) => {
 module.exports = {
   obtenerResumen,
   obtenerResumenOcupacion,
+  obtenerAlertasOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 };

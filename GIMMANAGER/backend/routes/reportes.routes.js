@@ -5,6 +5,7 @@ const router = express.Router();
 const {
   obtenerResumen,
   obtenerResumenOcupacion,
+  obtenerAlertasOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 } = require("../controllers/reportes.controller");
@@ -45,6 +46,16 @@ router.get(
   "/ocupacion",
   verificarToken,
   obtenerResumenOcupacion
+);
+// ==========================================
+// GET - ALERTAS DE OCUPACIÓN
+// Admin + Instructor
+// ==========================================
+
+router.get(
+  "/alertas-ocupacion",
+  verificarToken,
+  obtenerAlertasOcupacion
 );
 
 // ==========================================

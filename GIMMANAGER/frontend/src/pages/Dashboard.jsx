@@ -8,6 +8,7 @@ import { useAuth } from "../context/AuthContext";
 import {
   obtenerResumen,
   obtenerResumenOcupacion,
+  obtenerAlertasOcupacion,
   obtenerResumenFinanciero,
   obtenerIngresosPorMes,
 } from "../services/reportesService";
@@ -53,6 +54,12 @@ function Dashboard() {
     inscripcionesActivas: 0,
     cuposDisponibles: 0,
   });
+
+// ==========================================
+// ALERTAS DE OCUPACIÓN
+// ==========================================
+
+const [alertasOcupacion, setAlertasOcupacion] = useState([]);
 
   // ==========================================
   // RESUMEN FINANCIERO
@@ -133,6 +140,21 @@ function Dashboard() {
       const datosOcupacion = await obtenerResumenOcupacion();
 
       setResumenOcupacion(datosOcupacion);
+
+// ======================================
+// ALERTAS DE OCUPACIÓN
+// Admin + Instructor
+// ======================================
+
+const datosAlertas =
+  await obtenerAlertasOcupacion();
+
+setAlertasOcupacion(datosAlertas);
+
+console.log(
+  "Alertas de ocupación:",
+  datosAlertas
+);
 
       // ======================================
       // DATOS FINANCIEROS
@@ -397,6 +419,60 @@ function Dashboard() {
                 </div>
               </div>
             </div>
+
+            {/* ==============================
+    ALERTAS DE OCUPACIÓN
+============================== */}
+
+<div className="mt-4">
+
+  {alertasOcupacion.length === 0 ? (
+
+    <div className="alert alert-success mb-0">
+      ✅ No hay clases con alta ocupación.
+    </div>
+
+  ) : (
+
+    <div className="alert alert-warning mb-0">
+
+      <h5 className="alert-heading">
+        ⚠️ Clases con alta ocupación
+      </h5>
+
+      {alertasOcupacion.map((alerta) => (
+        <div
+          key={alerta.id}
+          className="border-top pt-2 mt-2"
+        >
+          <strong>{alerta.actividad}</strong>
+
+          <div>
+            {alerta.dia_semana} -{" "}
+            {alerta.hora_inicio}
+          </div>
+
+          <div>
+            Ocupación:{" "}
+            <strong>
+              {alerta.porcentajeOcupacion}%
+            </strong>
+          </div>
+
+          <div>
+            Cupos disponibles:{" "}
+            <strong>
+              {alerta.cuposDisponibles}
+            </strong>
+          </div>
+        </div>
+      ))}
+
+    </div>
+
+  )}
+
+</div>
 
             {/* ==============================
                 SECCIÓN FINANCIERA
