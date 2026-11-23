@@ -4,19 +4,22 @@ import { useEffect, useState } from "react";
 function FormularioSocio({ agregarSocio, socioAEditar }) {
   const [nombre, setNombre] = useState("");
   const [email, setEmail] = useState("");
-  const [plan, setPlan] = useState("Premium");
+  const [plan, setPlan] = useState("");
+  const [estado, setEstado] = useState("");
 
   useEffect(() => {
-    if (socioAEditar) {
-      setNombre(socioAEditar.nombre || "");
-      setEmail(socioAEditar.email || "");
-      setPlan(socioAEditar.plan || "Premium");
-    } else {
-      setNombre("");
-      setEmail("");
-      setPlan("Premium");
-    }
-  }, [socioAEditar]);
+  if (socioAEditar) {
+    setNombre(socioAEditar.nombre || "");
+    setEmail(socioAEditar.email || "");
+    setPlan(socioAEditar.plan || "");
+    setEstado(socioAEditar.estado || "");
+  } else {
+    setNombre("");
+    setEmail("");
+    setPlan("");
+    setEstado("");
+  }
+}, [socioAEditar]);
 
   const guardar = async () => {
     if (!nombre.trim() || !email.trim()) {
@@ -30,12 +33,12 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
     }
 
     const socio = {
-      ...(socioAEditar && { id: socioAEditar.id }),
-      nombre: nombre.trim(),
-      email: email.trim(),
-      plan,
-      estado: socioAEditar?.estado || "Activo",
-    };
+  ...(socioAEditar && { id: socioAEditar.id }),
+  nombre: nombre.trim(),
+  email: email.trim(),
+  plan,
+  estado,
+};
 
     try {
       await agregarSocio(socio);
@@ -48,7 +51,8 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
 
       setNombre("");
       setEmail("");
-      setPlan("Premium");
+      setPlan("");
+      setEstado("");
     } catch (error) {
       console.error(error);
 
@@ -79,14 +83,30 @@ function FormularioSocio({ agregarSocio, socioAEditar }) {
           onChange={(e) => setEmail(e.target.value)}
         />
 
-        <select
-          className="form-select mb-3"
-          value={plan}
-          onChange={(e) => setPlan(e.target.value)}
-        >
-          <option value="Premium">Premium</option>
-          <option value="Básico">Básico</option>
-        </select>
+       <select
+  className="form-select mb-3"
+  value={plan}
+  onChange={(e) => setPlan(e.target.value)}
+>
+  <option value="" disabled>
+    Seleccionar plan
+  </option>
+  <option value="Premium">Premium</option>
+  <option value="Básico">Básico</option>
+</select>
+
+<select
+  className="form-select mb-3"
+  value={estado}
+  onChange={(e) => setEstado(e.target.value)}
+>
+  <option value="" disabled>
+    Seleccionar estado
+  </option>
+  
+  <option value="Activo">Activo</option>
+  <option value="Inactivo">Inactivo</option>
+</select>
 
         <button className="btn btn-fit" onClick={guardar}>
           {socioAEditar ? "Guardar cambios" : "Agregar Socio"}

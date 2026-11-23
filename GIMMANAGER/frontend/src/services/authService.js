@@ -1,19 +1,27 @@
+
 import api from "./api";
+
+// ==========================================
+// INICIAR SESIÓN
+// ==========================================
 
 export const loginUsuario = async (email, password) => {
   try {
-    console.log("🔐 Intentando login con:", { email, password });
-    
-    const respuesta = await api.post("/login", { 
-      email, 
-      password 
+    // Enviar las credenciales al backend
+    const respuesta = await api.post("/login", {
+      email,
+      password
     });
-    
-    console.log("✅ Respuesta del servidor:", respuesta.data);
-    
+
+    // Devolver los datos al componente
     return respuesta.data;
+
   } catch (error) {
-    console.error("❌ Error en login:", error.response?.data || error.message);
+    console.error(
+      "Error al iniciar sesión:",
+      error.response?.status || error.message
+    );
+
     throw error;
   }
 };
