@@ -102,8 +102,7 @@ const validarHorario = (datos) => {
 // ==========================================
 // CREAR HORARIO
 // ==========================================
-
-const crearHorario = (req, res) => {
+  const crearHorario = (req, res) => {
   const validacion = validarHorario(req.body);
 
   if (!validacion.valido) {
@@ -112,37 +111,56 @@ const crearHorario = (req, res) => {
     });
   }
 
-  HorariosModel.crearHorario(
-    req.body,
-    (error, resultado) => {
+  // Consultar el estado del profesor
+  HorariosModel.obtenerEstadoProfesor(
+    req.body.profesor_id,
+    (error, resultados) => {
       if (error) {
-        console.error(
-          "Error al crear horario:",
-          error
-        );
-
-        // Profesor inexistente
-        if (
-          error.code ===
-          "ER_NO_REFERENCED_ROW_2"
-        ) {
-          return res.status(400).json({
-            mensaje:
-              "El profesor seleccionado no existe",
-          });
-        }
+        console.error("Error al consultar profesor:", error);
 
         return res.status(500).json({
-          mensaje:
-            "Error al crear el horario",
+          mensaje: "Error al consultar el profesor",
         });
       }
 
-      res.status(201).json({
-        mensaje:
-          "Horario creado correctamente",
-        id: resultado.insertId,
-      });
+      // Comprobar que el profesor exista
+      if (resultados.length === 0) {
+        return res.status(400).json({
+          mensaje: "El profesor seleccionado no existe",
+        });
+      }
+
+      // Comprobar que el profesor esté activo
+      if (resultados[0].estado !== "Activo") {
+        return res.status(400).json({
+          mensaje: "No se puede asignar un horario a un profesor inactivo",
+        });
+      }
+
+      // Crear horario si todas las validaciones son correctas
+      HorariosModel.crearHorario(
+        req.body,
+        (error, resultado) => {
+          if (error) {
+            console.error("Error al crear horario:", error);
+
+            if (error.code === "ER_NO_REFERENCED_ROW_2") {
+              return res.status(400).json({
+                mensaje: "El profesor seleccionado no existe",
+              });
+            }
+
+            return res.status(500).json({
+              mensaje: "Error al crear el horario",
+            });
+          }
+
+          res.status(201).json({
+            mensaje: "Horario creado correctamente",
+            id: resultado.insertId,
+          });
+        }
+      );
     }
   );
 };
@@ -162,42 +180,62 @@ const actualizarHorario = (req, res) => {
     });
   }
 
-  HorariosModel.actualizarHorario(
-    id,
-    req.body,
-    (error, resultado) => {
+  // Consultar el estado del profesor
+  HorariosModel.obtenerEstadoProfesor(
+    req.body.profesor_id,
+    (error, resultados) => {
       if (error) {
-        console.error(
-          "Error al actualizar horario:",
-          error
-        );
-
-        if (
-          error.code ===
-          "ER_NO_REFERENCED_ROW_2"
-        ) {
-          return res.status(400).json({
-            mensaje:
-              "El profesor seleccionado no existe",
-          });
-        }
+        console.error("Error al consultar profesor:", error);
 
         return res.status(500).json({
-          mensaje:
-            "Error al actualizar el horario",
+          mensaje: "Error al consultar el profesor",
         });
       }
 
-      if (resultado.affectedRows === 0) {
-        return res.status(404).json({
-          mensaje: "Horario no encontrado",
+      // Comprobar que el profesor exista
+      if (resultados.length === 0) {
+        return res.status(400).json({
+          mensaje: "El profesor seleccionado no existe",
         });
       }
 
-      res.json({
-        mensaje:
-          "Horario actualizado correctamente",
-      });
+      // Comprobar que el profesor esté activo
+      if (resultados[0].estado !== "Activo") {
+        return res.status(400).json({
+          mensaje: "No se puede asignar un horario a un profesor inactivo",
+        });
+      }
+
+      // Actualizar el horario
+      HorariosModel.actualizarHorario(
+        id,
+        req.body,
+        (error, resultado) => {
+          if (error) {
+            console.error("Error al actualizar horario:", error);
+
+            if (error.code === "ER_NO_REFERENCED_ROW_2") {
+              return res.status(400).json({
+                mensaje: "El profesor seleccionado no existe",
+              });
+            }
+
+            return res.status(500).json({
+              mensaje: "Error al actualizar el horario",
+            });
+          }
+
+          if (resultado.affectedRows === 0) {
+            return res.status(404).json({
+              mensaje: "Horario no encontrado",
+            });
+          }
+
+          res.json({
+            mensaje: "Horario actualizado correctamente",
+          });
+        }
+      );
     }
   );
 };

@@ -140,6 +140,24 @@ const actualizarHorario = (
 };
 
 // ==========================================
+// OBTENER ESTADO DEL PROFESOR
+// ==========================================
+
+const obtenerEstadoProfesor = (profesorId, callback) => {
+  const consulta = `
+    SELECT id, estado
+    FROM profesores
+    WHERE id = ?
+  `;
+
+  db.query(consulta, [profesorId], callback);
+};
+
+
+
+
+
+// ==========================================
 // ELIMINAR HORARIO
 // ==========================================
 
@@ -155,6 +173,7 @@ const eliminarHorario = (id, callback) => {
 module.exports = {
   obtenerHorarios,
   obtenerHorarioPorId,
+  obtenerEstadoProfesor,
   crearHorario,
   actualizarHorario,
   eliminarHorario,

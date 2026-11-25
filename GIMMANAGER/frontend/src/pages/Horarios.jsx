@@ -184,41 +184,50 @@ const Horarios = () => {
   // ==========================================
 
   const handleEditar = (horario) => {
-    setHorarioEditando(horario);
+  setHorarioEditando(horario);
 
-    setFormulario({
-      profesor_id:
-        horario.profesor_id,
+  // Comprobar si el profesor asignado está activo
+  const profesorActivo = profesores.some(
+    (profesor) =>
+      profesor.id === horario.profesor_id &&
+      profesor.estado === "Activo"
+  );
 
-      actividad:
-        horario.actividad || "",
+  setError("");
 
-      dia_semana:
-        horario.dia_semana || "Lunes",
+  if (!profesorActivo) {
+    setError(
+      "El profesor asignado no está disponible. Seleccioná un profesor activo."
+    );
+  }
 
-      hora_inicio:
-        horario.hora_inicio
-          ? horario.hora_inicio.substring(0, 5)
-          : "",
+  setFormulario({
+    profesor_id: profesorActivo
+      ? horario.profesor_id
+      : "",
 
-      hora_fin:
-        horario.hora_fin
-          ? horario.hora_fin.substring(0, 5)
-          : "",
+    actividad: horario.actividad || "",
 
-      cupo_maximo:
-        horario.cupo_maximo ?? 20,
+    dia_semana: horario.dia_semana || "Lunes",
 
-      estado:
-        horario.estado || "Activo",
-    });
+    hora_inicio: horario.hora_inicio
+      ? horario.hora_inicio.substring(0, 5)
+      : "",
 
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
-  };
+    hora_fin: horario.hora_fin
+      ? horario.hora_fin.substring(0, 5)
+      : "",
 
+    cupo_maximo: horario.cupo_maximo ?? 20,
+
+    estado: horario.estado || "Activo",
+  });
+
+  window.scrollTo({
+    top: 0,
+    behavior: "smooth",
+  });
+};
   // ==========================================
   // ELIMINAR HORARIO
   // ==========================================
@@ -250,6 +259,14 @@ const Horarios = () => {
       );
     }
   };
+
+// ==========================================
+// FILTRAR PROFESORES ACTIVOS
+// ==========================================
+
+const profesoresActivos = profesores.filter(
+  (profesor) => profesor.estado === "Activo"
+);
 
   // ==========================================
   // RENDER
@@ -320,19 +337,19 @@ const Horarios = () => {
                     Seleccionar profesor
                   </option>
 
-                  {profesores.map(
-                    (profesor) => (
-                      <option
-                        key={profesor.id}
-                        value={profesor.id}
-                      >
-                        {profesor.nombre}
-                        {profesor.especialidad
-                          ? ` - ${profesor.especialidad}`
-                          : ""}
-                      </option>
-                    )
-                  )}
+                 {profesoresActivos.map(
+  (profesor) => (
+    <option
+      key={profesor.id}
+      value={profesor.id}
+    >
+      {profesor.nombre}
+      {profesor.especialidad
+        ? ` - ${profesor.especialidad}`
+        : ""}
+    </option>
+  )
+)}
 
                 </select>
 
