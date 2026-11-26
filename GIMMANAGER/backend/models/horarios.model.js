@@ -47,6 +47,42 @@ const obtenerHorarioPorId = (id, callback) => {
   db.query(consulta, [id], callback);
 };
 
+const verificarSuperposicion = (
+  horario,
+  callback,
+  idExcluir = null
+) => {
+  const {
+    profesor_id,
+    dia_semana,
+    hora_inicio,
+    hora_fin
+  } = horario;
+
+  let consulta = `
+    SELECT id, actividad, hora_inicio, hora_fin
+    FROM horarios
+    WHERE profesor_id = ?
+      AND dia_semana = ?
+      AND estado = 'Activo'
+      AND hora_inicio < ?
+      AND hora_fin > ?
+  `;
+
+  const parametros = [
+    profesor_id,
+    dia_semana,
+    hora_fin,
+    hora_inicio
+  ];
+
+  if (idExcluir !== null) {
+    consulta += " AND id <> ?";
+    parametros.push(idExcluir);
+  }
+
+  db.query(consulta, parametros, callback);
+}
 // ==========================================
 // CREAR HORARIO
 // ==========================================
@@ -174,6 +210,7 @@ module.exports = {
   obtenerHorarios,
   obtenerHorarioPorId,
   obtenerEstadoProfesor,
+  verificarSuperposicion,
   crearHorario,
   actualizarHorario,
   eliminarHorario,

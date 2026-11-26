@@ -111,7 +111,6 @@ const validarHorario = (datos) => {
     });
   }
 
-  // Consultar el estado del profesor
   HorariosModel.obtenerEstadoProfesor(
     req.body.profesor_id,
     (error, resultados) => {
@@ -123,48 +122,74 @@ const validarHorario = (datos) => {
         });
       }
 
-      // Comprobar que el profesor exista
       if (resultados.length === 0) {
         return res.status(400).json({
           mensaje: "El profesor seleccionado no existe",
         });
       }
 
-      // Comprobar que el profesor esté activo
       if (resultados[0].estado !== "Activo") {
         return res.status(400).json({
           mensaje: "No se puede asignar un horario a un profesor inactivo",
         });
       }
 
-      // Crear horario si todas las validaciones son correctas
-      HorariosModel.crearHorario(
+      // NUEVA VALIDACIÓN DE SUPERPOSICIÓN
+      HorariosModel.verificarSuperposicion(
         req.body,
-        (error, resultado) => {
+        (error, conflictos) => {
           if (error) {
-            console.error("Error al crear horario:", error);
-
-            if (error.code === "ER_NO_REFERENCED_ROW_2") {
-              return res.status(400).json({
-                mensaje: "El profesor seleccionado no existe",
-              });
-            }
+            console.error(
+              "Error al verificar superposición:",
+              error
+            );
 
             return res.status(500).json({
-              mensaje: "Error al crear el horario",
+              mensaje: "Error al verificar los horarios",
             });
           }
 
-          res.status(201).json({
-            mensaje: "Horario creado correctamente",
-            id: resultado.insertId,
-          });
+          if (
+            (req.body.estado || "Activo") === "Activo" &&
+            conflictos.length > 0
+          ) {
+            return res.status(409).json({
+              mensaje: "El profesor ya tiene un horario asignado en ese intervalo",
+            });
+          }
+
+          // CREAR HORARIO
+          HorariosModel.crearHorario(
+            req.body,
+            (error, resultado) => {
+              if (error) {
+                console.error(
+                  "Error al crear horario:",
+                  error
+                );
+
+                if (error.code === "ER_NO_REFERENCED_ROW_2") {
+                  return res.status(400).json({
+                    mensaje: "El profesor seleccionado no existe",
+                  });
+                }
+
+                return res.status(500).json({
+                  mensaje: "Error al crear el horario",
+                });
+              }
+
+              res.status(201).json({
+                mensaje: "Horario creado correctamente",
+                id: resultado.insertId,
+              });
+            }
+          );
         }
       );
     }
   );
 };
-
 // ==========================================
 // ACTUALIZAR HORARIO
 // ==========================================
@@ -180,7 +205,6 @@ const actualizarHorario = (req, res) => {
     });
   }
 
-  // Consultar el estado del profesor
   HorariosModel.obtenerEstadoProfesor(
     req.body.profesor_id,
     (error, resultados) => {
@@ -192,49 +216,77 @@ const actualizarHorario = (req, res) => {
         });
       }
 
-      // Comprobar que el profesor exista
       if (resultados.length === 0) {
         return res.status(400).json({
           mensaje: "El profesor seleccionado no existe",
         });
       }
 
-      // Comprobar que el profesor esté activo
       if (resultados[0].estado !== "Activo") {
         return res.status(400).json({
           mensaje: "No se puede asignar un horario a un profesor inactivo",
         });
       }
 
-      // Actualizar el horario
-      HorariosModel.actualizarHorario(
-        id,
+      // VALIDAR SUPERPOSICIÓN
+      HorariosModel.verificarSuperposicion(
         req.body,
-        (error, resultado) => {
+        (error, conflictos) => {
           if (error) {
-            console.error("Error al actualizar horario:", error);
-
-            if (error.code === "ER_NO_REFERENCED_ROW_2") {
-              return res.status(400).json({
-                mensaje: "El profesor seleccionado no existe",
-              });
-            }
+            console.error(
+              "Error al verificar superposición:",
+              error
+            );
 
             return res.status(500).json({
-              mensaje: "Error al actualizar el horario",
+              mensaje: "Error al verificar los horarios",
             });
           }
 
-          if (resultado.affectedRows === 0) {
-            return res.status(404).json({
-              mensaje: "Horario no encontrado",
+          if (
+            (req.body.estado || "Activo") === "Activo" &&
+            conflictos.length > 0
+          ) {
+            return res.status(409).json({
+              mensaje: "El profesor ya tiene un horario asignado en ese intervalo",
             });
           }
 
-          res.json({
-            mensaje: "Horario actualizado correctamente",
-          });
-        }
+          // ACTUALIZAR HORARIO
+          HorariosModel.actualizarHorario(
+            id,
+            req.body,
+            (error, resultado) => {
+              if (error) {
+                console.error(
+                  "Error al actualizar horario:",
+                  error
+                );
+
+                if (error.code === "ER_NO_REFERENCED_ROW_2") {
+                  return res.status(400).json({
+                    mensaje: "El profesor seleccionado no existe",
+                  });
+                }
+
+                return res.status(500).json({
+                  mensaje: "Error al actualizar el horario",
+                });
+              }
+
+              if (resultado.affectedRows === 0) {
+                return res.status(404).json({
+                  mensaje: "Horario no encontrado",
+                });
+              }
+
+              res.json({
+                mensaje: "Horario actualizado correctamente",
+              });
+            }
+          );
+        },
+        id
       );
     }
   );
